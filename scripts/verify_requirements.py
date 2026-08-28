@@ -10,9 +10,7 @@ library so it can run in a clean repository checkout.
 from __future__ import annotations
 
 import argparse
-import io
 import re
-import shutil
 import sys
 import tempfile
 import xml.etree.ElementTree as ET
