@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="H2O Memory Phase 1 ソフトウェアプロトタイプの要件定義初稿">
+  <title>H2O Memory — 要件定義 初稿</title>
+  <style>
+    :root {
+      --ink: #eaf5f3;
+      --muted: #9eb6b3;
+      --deep: #071412;
+      --surface: #0b1d1a;
+      --surface-2: #102925;
+      --line: #254640;
+      --mint: #75f0c1;
+      --cyan: #70d9f5;
+      --amber: #ffc76c;
+      --rose: #ff8e9d;
+      --vapor: #a6c8ca;
+      --liquid: #70d9f5;
+      --ice: #c6fff2;
+      --shadow: 0 20px 55px rgba(0, 0, 0, .28);
+      --radius: 18px;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 90% 5%, rgba(112, 217, 245, .13), transparent 28rem),
+        radial-gradient(circle at 8% 28%, rgba(117, 240, 193, .09), transparent 26rem),
+        var(--deep);
+      font-family: var(--sans);
+      line-height: 1.7;
+    }
+
+    a { color: var(--cyan); }
+    code, pre { font-family: var(--mono); }
+    code {
+      padding: .12rem .34rem;
+      border: 1px solid rgba(112, 217, 245, .18);
+      border-radius: 6px;
+      color: #c9f7ff;
+      background: rgba(112, 217, 245, .08);
+    }
+    pre code { padding: 0; border: 0; background: transparent; }
+
+    .page-shell { width: min(1180px, calc(100% - 36px)); margin: 0 auto; }
+    .eyebrow {
+      margin: 0 0 .65rem;
+      color: var(--mint);
+      font-family: var(--mono);
+      font-size: .76rem;
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    .hero {
+      position: relative;
+      min-height: 590px;
+      padding: 94px 0 54px;
+      overflow: hidden;
+      border-bottom: 1px solid var(--line);
+    }
+    .hero::after {
+      position: absolute;
+      top: 78px;
+      right: max(24px, calc((100vw - 1180px) / 2));
+      width: 280px;
+      height: 280px;
+      border: 1px solid rgba(117, 240, 193, .26);
+      border-radius: 50%;
+      box-shadow: inset 0 0 90px rgba(112, 217, 245, .08), 0 0 90px rgba(112, 217, 245, .08);
+      content: "";
+      opacity: .75;
+    }
+    .hero-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(290px, .75fr);
+      gap: 54px;
+      align-items: end;
+    }
+    h1 {
+      max-width: 780px;
+      margin: 0;
+      font-size: clamp(3.2rem, 8vw, 7rem);
+      line-height: .88;
+      letter-spacing: -.075em;
+    }
+    h1 span { display: block; color: var(--mint); }
+    .hero-lead {
+      max-width: 720px;
+      margin: 1.75rem 0 0;
+      color: #c9d9d6;
+      font-size: clamp(1.03rem, 2vw, 1.27rem);
+      line-height: 1.8;
+    }
+    .status-card {
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(11, 29, 26, .82);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+    .status-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      padding: .72rem 0;
+      border-bottom: 1px solid rgba(37, 70, 64, .7);
+    }
+    .status-line:last-child { border-bottom: 0; }
+    .status-line span { color: var(--muted); }
+    .status-line strong { color: var(--ink); text-align: right; }
+    .draft-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .28rem .7rem;
+      border: 1px solid rgba(255, 199, 108, .4);
+      border-radius: 999px;
+      color: var(--amber);
+      background: rgba(255, 199, 108, .09);
+      font-family: var(--mono);
+      font-size: .78rem;
+    }
+    .draft-pill::before { width: 7px; height: 7px; border-radius: 50%; background: currentColor; content: ""; }
+
+    .phase-ribbon {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      margin-top: 50px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--line);
+    }
+    .phase-ribbon div { padding: 18px 20px; background: rgba(11, 29, 26, .94); }
+    .phase-ribbon b { display: block; font-size: 1.06rem; }
+    .phase-ribbon small { color: var(--muted); }
+    .phase-ribbon .vapor b { color: var(--vapor); }
+    .phase-ribbon .liquid b { color: var(--liquid); }
+    .phase-ribbon .ice b { color: var(--ice); }
+
+    .toc-wrap {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid var(--line);
+      background: rgba(7, 20, 18, .92);
+      backdrop-filter: blur(16px);
+    }
+    .toc {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      min-height: 58px;
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+    .toc a {
+      flex: 0 0 auto;
+      padding: .4rem .72rem;
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: .82rem;
+      text-decoration: none;
+    }
+    .toc a:hover { color: var(--ink); background: var(--surface-2); }
+
+    main { padding: 34px 0 100px; }
+    section.content-section { padding: 74px 0 28px; scroll-margin-top: 52px; }
+    .section-heading {
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr);
+      gap: 28px;
+      margin-bottom: 30px;
+      align-items: start;
+    }
+    .section-no { color: var(--mint); font-family: var(--mono); font-size: .85rem; letter-spacing: .12em; }
+    h2 { margin: 0; font-size: clamp(2rem, 4.4vw, 3.8rem); line-height: 1.05; letter-spacing: -.055em; }
+    h3 { margin: 0 0 .65rem; font-size: 1.22rem; line-height: 1.35; }
+    h4 { margin: 0 0 .4rem; font-size: 1rem; }
+    .section-intro { max-width: 830px; margin: 1rem 0 0; color: var(--muted); font-size: 1.03rem; }
+    .content-offset { margin-left: 148px; }
+
+    .callout {
+      padding: 22px 24px;
+      border-left: 3px solid var(--mint);
+      border-radius: 0 12px 12px 0;
+      background: linear-gradient(90deg, rgba(117, 240, 193, .1), rgba(117, 240, 193, .025));
+    }
+    .callout.warning { border-left-color: var(--amber); background: linear-gradient(90deg, rgba(255, 199, 108, .1), transparent); }
+    .callout p { margin: .35rem 0; }
+
+    .goal-grid, .phase-grid, .metric-grid, .boundary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .card {
+      padding: 23px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: linear-gradient(145deg, rgba(16, 41, 37, .72), rgba(11, 29, 26, .72));
+    }
+    .card p { margin: .5rem 0 0; color: var(--muted); }
+    .card .tag {
+      display: inline-block;
+      margin-bottom: .75rem;
+      color: var(--cyan);
+      font-family: var(--mono);
+      font-size: .72rem;
+      letter-spacing: .09em;
+    }
+    .phase-card { position: relative; overflow: hidden; }
+    .phase-card::before { position: absolute; inset: 0 auto 0 0; width: 3px; background: currentColor; content: ""; }
+    .phase-card.vapor { color: var(--vapor); }
+    .phase-card.liquid { color: var(--liquid); }
+    .phase-card.ice { color: var(--ice); }
+    .phase-card p, .phase-card li { color: var(--muted); }
+
+    .flow-line {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      gap: 12px;
+      align-items: center;
+      margin: 25px 0;
+    }
+    .flow-node { padding: 18px; border: 1px solid var(--line); border-radius: 12px; text-align: center; background: var(--surface); }
+    .flow-arrow { color: var(--mint); font-size: 1.35rem; }
+
+    .table-wrap { margin: 22px 0; overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
+    table { width: 100%; border-collapse: collapse; background: rgba(11, 29, 26, .72); font-size: .9rem; }
+    th, td { padding: 14px 16px; border-bottom: 1px solid rgba(37, 70, 64, .72); text-align: left; vertical-align: top; }
+    th { color: var(--mint); background: rgba(16, 41, 37, .95); font-family: var(--mono); font-size: .74rem; letter-spacing: .06em; }
+    tr:last-child td { border-bottom: 0; }
+    td:first-child { color: #c9f7ff; font-family: var(--mono); font-size: .82rem; white-space: nowrap; }
+    td ul { margin: 0; padding-left: 1.1rem; }
+    .must { color: var(--rose); font-weight: 700; }
+    .should { color: var(--amber); font-weight: 700; }
+
+    .formula {
+      margin: 18px 0;
+      padding: 17px 20px;
+      overflow-x: auto;
+      border: 1px solid rgba(112, 217, 245, .25);
+      border-radius: 12px;
+      color: #d8f9ff;
+      background: rgba(4, 15, 19, .8);
+      font-family: var(--mono);
+      font-size: .91rem;
+    }
+    .small-note { color: var(--muted); font-size: .85rem; }
+    .mt-22 { margin-top: 22px; }
+    .mt-24 { margin-top: 24px; }
+    .mt-28 { margin-top: 28px; }
+    .req-list { display: grid; gap: 12px; }
+    .req-item {
+      display: grid;
+      grid-template-columns: 116px minmax(0, 1fr);
+      gap: 18px;
+      padding: 19px 21px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(11, 29, 26, .72);
+    }
+    .req-id { color: var(--cyan); font-family: var(--mono); font-size: .8rem; font-weight: 700; }
+    .req-body p { margin: .25rem 0; color: var(--muted); }
+    .verify { color: var(--ink) !important; font-size: .88rem; }
+    .verify::before { color: var(--mint); content: "検証 · "; font-family: var(--mono); font-weight: 700; }
+
+    .terminal-window {
+      overflow: hidden;
+      border: 1px solid #34564f;
+      border-radius: 18px;
+      background: #06100f;
+      box-shadow: var(--shadow);
+    }
+    .terminal-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px 16px;
+      border-bottom: 1px solid #28443f;
+      color: #a7beba;
+      background: #10221f;
+      font-family: var(--mono);
+      font-size: .76rem;
+    }
+    .terminal-dots { display: flex; gap: 7px; }
+    .terminal-dots i { width: 9px; height: 9px; border-radius: 50%; background: #45635e; }
+    .terminal-dots i:first-child { background: #ff8e9d; }
+    .terminal-dots i:nth-child(2) { background: #ffc76c; }
+    .terminal-dots i:last-child { background: #75f0c1; }
+    .terminal-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); min-height: 560px; }
+    .terminal-side { padding: 21px 17px; border-right: 1px solid #28443f; background: #0a1816; font-family: var(--mono); }
+    .terminal-brand { margin-bottom: 22px; color: var(--mint); font-size: .88rem; font-weight: 800; letter-spacing: .13em; }
+    .terminal-side h4 { margin: 18px 0 8px; color: #718f8a; font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; }
+    .inventory { display: grid; gap: 7px; }
+    .inventory div { display: flex; justify-content: space-between; gap: 10px; padding: 7px 9px; border-radius: 7px; color: #b9ceca; background: #10221f; font-size: .74rem; }
+    .inventory b { color: var(--ink); }
+    .terminal-main { padding: 22px; overflow: hidden; font-family: var(--mono); font-size: .78rem; line-height: 1.65; }
+    .terminal-prompt { padding-bottom: 18px; border-bottom: 1px solid #213d38; color: #d3e5e2; overflow-wrap: anywhere; }
+    .terminal-prompt .dollar { color: var(--mint); }
+    .run-label { display: flex; justify-content: space-between; gap: 12px; margin: 18px 0 10px; color: #718f8a; font-size: .7rem; letter-spacing: .08em; }
+    .phase-lane { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .phase-bin { padding: 11px; border: 1px solid #28443f; border-radius: 9px; background: #0b1b18; }
+    .phase-bin span { display: block; color: #718f8a; font-size: .64rem; }
+    .phase-bin strong { display: block; margin: 4px 0; font-size: 1.1rem; }
+    .phase-bin.v strong { color: var(--vapor); }
+    .phase-bin.l strong { color: var(--liquid); }
+    .phase-bin.i strong { color: var(--ice); }
+    .event-log { margin: 16px 0 0; padding: 0; list-style: none; }
+    .event-log li { display: grid; grid-template-columns: 72px 78px minmax(0, 1fr); gap: 10px; padding: 8px 0; border-bottom: 1px dashed #1c3732; color: #b7ceca; }
+    .event-log time { color: #607e79; }
+    .event-log .ok { color: var(--mint); }
+    .event-log .cold { color: var(--vapor); }
+    .event-log .warm { color: var(--cyan); }
+    .result-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 18px; }
+    .result-strip div { padding: 10px; border: 1px solid #28443f; border-radius: 8px; background: #10221f; }
+    .result-strip span { display: block; color: #718f8a; font-size: .64rem; }
+    .result-strip b { color: var(--mint); font-size: .9rem; }
+    .post-state { margin-top: 16px; padding: 12px 14px; border-left: 2px solid var(--cyan); color: #cde5e1; background: rgba(112, 217, 245, .06); }
+
+    .architecture-board {
+      padding: 26px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(160deg, rgba(16, 41, 37, .86), rgba(5, 17, 15, .94));
+      box-shadow: var(--shadow);
+    }
+    .architecture-flow { display: grid; grid-template-columns: 1fr 44px 1.15fr 44px 1fr; align-items: stretch; }
+    .architecture-column { display: grid; gap: 10px; }
+    .arch-box { padding: 16px; border: 1px solid #31544d; border-radius: 11px; background: #0a1b18; }
+    .arch-box.primary { border-color: rgba(117, 240, 193, .6); background: rgba(117, 240, 193, .06); }
+    .arch-box b { display: block; color: var(--ink); }
+    .arch-box small { color: var(--muted); }
+    .arch-arrow { display: grid; place-items: center; color: var(--mint); font-size: 1.4rem; }
+    .layer-stack { display: grid; gap: 8px; margin-top: 22px; }
+    .layer { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 18px; padding: 13px 16px; border: 1px solid #294942; border-radius: 9px; }
+    .layer b { color: var(--cyan); font-family: var(--mono); font-size: .78rem; }
+    .layer span { color: var(--muted); font-size: .88rem; }
+
+    .checklist { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 20px 0; padding: 0; list-style: none; }
+    .checklist li { position: relative; padding: 15px 16px 15px 43px; border: 1px solid var(--line); border-radius: 11px; background: rgba(11, 29, 26, .7); }
+    .checklist li::before { position: absolute; left: 16px; top: 16px; color: var(--mint); content: "✓"; font-weight: 900; }
+    .no-list li::before { color: var(--rose); content: "×"; }
+
+    footer { padding: 35px 0 60px; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; }
+    .footer-grid { display: flex; justify-content: space-between; gap: 28px; }
+
+    @media (max-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .hero::after { opacity: .25; }
+      .goal-grid, .phase-grid, .metric-grid, .boundary-grid { grid-template-columns: 1fr; }
+      .section-heading { grid-template-columns: 1fr; gap: 8px; }
+      .content-offset { margin-left: 0; }
+      .terminal-layout { grid-template-columns: 1fr; }
+      .terminal-side { border-right: 0; border-bottom: 1px solid #28443f; }
+      .architecture-flow { grid-template-columns: 1fr; gap: 10px; }
+      .arch-arrow { transform: rotate(90deg); }
+    }
+
+    @media (max-width: 620px) {
+      .page-shell { width: min(100% - 24px, 1180px); }
+      .hero { min-height: auto; padding-top: 64px; }
+      .phase-ribbon, .phase-lane, .result-strip { grid-template-columns: 1fr; }
+      .phase-ribbon { gap: 1px; }
+      .flow-line { grid-template-columns: 1fr; }
+      .flow-arrow { transform: rotate(90deg); text-align: center; }
+      .req-item { grid-template-columns: 1fr; gap: 6px; }
+      .checklist { grid-template-columns: 1fr; }
+      .event-log li { grid-template-columns: 56px 65px minmax(0, 1fr); gap: 6px; }
+      .layer { grid-template-columns: 1fr; gap: 3px; }
+      .footer-grid { display: block; }
+    }
+
+    @media print {
+      :root { color-scheme: light; }
+      body { color: #10211e; background: white; }
+      .toc-wrap { position: static; }
+      .hero, section.content-section { break-inside: avoid; }
+      .card, .req-item, .table-wrap, .architecture-board { color: #10211e; background: white; box-shadow: none; }
+      .status-card { color: var(--ink); }
+      a { color: #09687a; }
+    }
+  </style>
+</head>
+<body data-document="requirements-definition" data-run-id="9cd8faee" data-status="draft">
+  <header class="hero">
+    <div class="page-shell">
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow">Requirements Definition · Phase 1</p>
+          <h1>H2O <span>Memory</span></h1>
+          <p class="hero-lead">
+            会話記憶を、水のように <strong>vapor / liquid / ice</strong> の一つの相として扱う。
+            古い領域を軽量な構造へ蒸発させ、質問に必要な領域を再び詳細な表現へ凝縮できることを、
+            通常のPC上で測定可能にする最小ソフトウェアプロトタイプの要件定義である。
+          </p>
+        </div>
+        <aside class="status-card" aria-label="文書情報">
+          <div class="status-line"><span>文書状態</span><strong><span class="draft-pill">初稿 0.1</span></strong></div>
+          <div class="status-line"><span>runId</span><strong>9cd8faee</strong></div>
+          <div class="status-line"><span>対象</span><strong>Phase 1 software prototype</strong></div>
+          <div class="status-line"><span>実行環境</span><strong>Python 3.11+ / normal PC</strong></div>
+          <div class="status-line"><span>基準</span><strong>offline · deterministic · falsifiable</strong></div>
+        </aside>
+      </div>
+
+      <div class="phase-ribbon" role="group" aria-label="三つの相">
+        <div class="vapor"><b>VAPOR / 気相</b><small>疎・圧縮・構造中心 / cold</small></div>
+        <div class="liquid"><b>LIQUID / 液相</b><small>待機・中精度 / standby</small></div>
+        <div class="ice"><b>ICE / 固相</b><small>詳細・高精度・計算近傍 / active</small></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="toc-wrap">
+    <nav class="toc page-shell" aria-label="目次">
+      <a href="#purpose">01 目的</a>
+      <a href="#phase-model">02 相モデル</a>
+      <a href="#functional">03 機能要件</a>
+      <a href="#topology">04 topology指標</a>
+      <a href="#data">05 データ</a>
+      <a href="#ui">06 UI案</a>
+      <a href="#architecture">07 アーキテクチャ</a>
+      <a href="#measurement">08 測定</a>
+      <a href="#acceptance">09 受入条件</a>
+      <a href="#boundaries">10 境界</a>
+      <a href="#traceability">11 追跡性</a>
+    </nav>
+  </div>
+
+  <main class="page-shell">
+    <section id="purpose" class="content-section">
+      <div class="section-heading">
+        <div class="section-no">01 / PURPOSE</div>
+        <div>
+          <h2>証明ではなく、反証できるデモを作る</h2>
+          <p class="section-intro">
+            本プロトタイプの問いは「相変化という表現が魅力的か」ではない。
+            圧縮された記憶が実際に小さく、必要時に再構成され、位相的な選択規則と由来が監査できるかを検証する。
+          </p>
+        </div>
+      </div>
+      <div class="content-offset">
+        <div class="callout">
+          <p><strong>製品目標:</strong> 短い合成会話を取り込み、古い記憶領域を vapor へ変換し、質問に関連する領域を ice へ戻し、保存量と再構成品質を同じ実行で報告するCLIを提供する。</p>
+          <p><strong>研究上の位置づけ:</strong> H2O Memory と TopoDialogue の組み合わせは <em>novelty hypothesis</em> であり、研究新規性の主張ではない。</p>
+        </div>
+
+        <div class="goal-grid">
+          <article class="card">
+            <span class="tag">OUTCOME 01</span>
+            <h3>相が変わる</h3>
+            <p>同じ <code>memory_id</code> を持つ領域が、明示的な状態機械を通って ice / liquid / vapor 間を往復する。</p>
+          </article>
+          <article class="card">
+            <span class="tag">OUTCOME 02</span>
+            <h3>小さくなる</h3>
+            <p>canonical serialization による比較で、vapor の総バイト数が元の ice より小さいことを示す。</p>
+          </article>
+          <article class="card">
+            <span class="tag">OUTCOME 03</span>
+            <h3>戻して測る</h3>
+            <p>質問から関連領域を選び、ice を再構成し、本文・順序・グラフ・provenance の回復率を出力する。</p>
+          </article>
+        </div>
+
+        <div class="callout warning mt-22">
+          <p><strong>用語境界:</strong> Phase 1 の <em>topology</em> は、意味再訪と時間グラフ構造を扱う研究メタファー／構造仮説である。グラフサイクルや以下の指標を数学的な位相不変量として扱わない。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="phase-model" class="content-section">
+      <div class="section-heading">
+        <div class="section-no">02 / PHASE MODEL</div>
+        <div>
+          <h2>一つの記憶、三つの表現状態</h2>
+          <p class="section-intro">相は別コピーではなく、安定した識別子と来歴を共有する同一記憶の表現形・精度・論理配置である。</p>
+        </div>
+      </div>
+      <div class="content-offset">
+        <div class="phase-grid">
+          <article class="card phase-card vapor">
+            <span class="tag">VAPOR · compressed cold</span>
+            <h3>構造だけを表面に残す</h3>
+            <ul>
+              <li>topology skeleton、最小メタデータ、provenance索引</li>
+              <li>疎／量子化された特徴と圧縮 recovery capsule</li>
+              <li>詳細本文は通常の参照面に展開しない</li>
+              <li>論理配置: <code>compressed_cold</code></li>
+            </ul>
+          </article>
+          <article class="card phase-card liquid">
+            <span class="tag">LIQUID · serialized standby</span>
+            <h3>すぐ戻せる待機状態</h3>
+            <ul>
+              <li>要約、低〜中精度特徴、近傍リンク</li>
+              <li>完全な evidence 索引と transition record</li>
+              <li>詳細payloadは非展開または部分展開</li>
+              <li>論理配置: <code>standby_serialized</code></li>
+            </ul>
+          </article>
+          <article class="card phase-card ice">
+            <span class="tag">ICE · active near compute</span>
+            <h3>計算に使う詳細状態</h3>
+            <ul>
+              <li>発話、型付きノード／エッジ、完全精度特徴</li>
+              <li>evidence span、confidence、correction history</li>
+              <li>検索・測定から直接利用可能</li>
+              <li>論理配置: <code>active_objects</code></li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="flow-line" role="group" aria-label="相変化の状態機械">
+          <div class="flow-node"><strong>ICE</strong><br><small>detail / active</small></div>
+          <div class="flow-arrow">⇄</div>
+          <div class="flow-node"><strong>LIQUID</strong><br><small>standby / serialized</small></div>
+          <div class="flow-arrow">⇄</div>
+          <div class="flow-node"><strong>VAPOR</strong><br><small>skeleton / compressed</small></div>
+        </div>
+
+        <p class="small-note">
+          公開APIの <code>vaporize()</code> と <code>condense()</code> は複合操作でよいが、監査ログでは
+          <code>ICE → LIQUID → VAPOR</code>、<code>VAPOR → LIQUID → ICE</code> の各遷移を残す。
+          「physical placement」は Phase 1 では上記の論理配置で模擬し、実RAM階層・GPU転送・消費電力を実装済みと表現しない。
+        </p>
+
+        <div class="callout mt-22">
+          <p><strong>可逆性の定義:</strong> vapor の通常表面は structure-only だが、vaporサイズに含めて計測する lossless recovery capsule を保持する。condense 後は合成fixtureの本文、順序、グラフ、provenance、訂正履歴を完全回復する。特徴量は同じ決定論的providerから再計算して高精度化できる。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="functional" class="content-section">
+      <div class="section-heading">
+        <div class="section-no">03 / REQUIREMENTS</div>
+        <div>
+          <h2>機能要件</h2>
+          <p class="section-intro"><span class="must">MUST</span> は受入必須、<span class="should">SHOULD</span> は初期実装で可能な限り満たす。</p>
+        </div>
+      </div>
+      <div class="content-offset req-list">
+        <article class="req-item" id="REQ-F-001">
+          <div class="req-id">REQ-F-001<br><span class="must">MUST</span></div>
+          <div class="req-body"><h3>会話取り込みと領域化</h3><p>短いJSONL会話または同等のPythonオブジェクトを取り込み、発話順を保持した <code>MemoryRegion</code> 群へ変換する。fixtureは合成または匿名化済みに限る。</p><p class="verify">AC-INGEST-01, AC-OFFLINE-01</p></div>
+        </article>
+        <article class="req-item" id="REQ-F-002">
+          <div class="req-id">REQ-F-002<br><span class="must">MUST</span></div>
+          <div class="req-body"><h3>明示的な三相状態</h3><p><code>memory_state.py</code> に vapor / liquid / ice と論理配置を型として定義し、すべての領域が常にちょうど一つの相を持つ。</p><p class="verify">AC-PHASE-01</p></div>
+        </article>
+        <article class="req-item" id="REQ-F-003">
+          <div class="req-id">REQ-F-003<br><span class="must">MUST</span></div>
+          <div class="req-body"><h3>topology主導の相選択</h3><p><code>topology.py</code> が connectivity、revisit、branch、operational attractor、transition order、provenance coverage を追跡し、透明な重み付きscoreと安定tie-breakで各領域の相を決める。</p><p class="verify">AC-TOPO-01, AC-DETERMINISM-01</p></div>
+        </article>
+        <article class="req-item" id="REQ-F-004">
+          <div class="req-id">REQ-F-004<br><span class="must">MUST</span></div>
+          <div class="req-body"><h3>vaporize / 可逆圧縮</h3><p><code>encoder.py</code> は低保持scoreの古いice領域を、topology skeleton、由来索引、疎な特徴、圧縮recovery capsuleを持つvaporへ変換する。圧縮payloadも保存量に含める。</p><p class="verify">AC-SAVING-01, AC-ROUNDTRIP-01</p></div>
+        </article>
+        <article class="req-item" id="REQ-F-005">
+          <div class="req-id">REQ-F-005<br><span class="must">MUST</span></div>
+          <div class="req-body"><h3>liquid / 待機表現</h3><p>中間scoreの領域を、概要・中精度特徴・近傍リンクを即時参照できるstandby表現にする。liquidはvaporの別名ではなく、サイズまたは展開可能情報が異なる。</p><p class="verify">AC-PHASE-02</p></div>
+        </article>
+        <article class="req-item" id="REQ-F-006">
+          <div class="req-id">REQ-F-006<br><span class="must">MUST</span></div>
+          <div class="req-body"><h3>queryによる関連領域選択</h3><p>質問をproviderで表現し、vapor/liquidのskeletonとグラフ近傍から関連領域を決定論的に順位付けする。同点は <code>region_id</code> 昇順で解消する。</p><p class="verify">AC-QUERY-01</p></div>
+        </article>
+        <article class="req-item" id="REQ-F-007">
+          <div class="req-id">REQ-F-007<br><span class="must">MUST</span></div>
+          <div class="req-body"><h3>condense / 詳細再構成</h3><p><code>decoder.py</code> は選択された領域をiceへ戻し、識別子、本文、発話順、ノード／エッジ、provenance、evidence span、訂正履歴を回復する。無関係な領域は自動でiceにしない。</p><p class="verify">AC-ROUNDTRIP-01, AC-QUERY-01</p></div>
+        </article>
+        <article class="req-item" id="REQ-F-008">
+          <div class="req-id">REQ-F-008<br><span class="must">MUST</span></div>
+          <div class="req-body"><h3>遷移監査</h3><p>各相変化は <code>TransitionRecord</code> として、対象、遷移前後、理由、topology score、決定規則ID、前後バイト数、provider fingerprint、連番を追記専用で記録する。</p><p class="verify">AC-AUDIT-01</p></div>
+        </article>
+        <article class="req-item" id="REQ-F-009">
+          <div class="req-id">REQ-F-009<br><span class="must">MUST</span></div>
+          <div class="req-body"><h3>保存量と再構成の同時測定</h3><p>ice/vapor/liquidのcanonical bytes、saving ratio、本文一致、特徴類似度、node/edge/order/provenance回復率を一つの <code>RoundTripReport</code> として返す。</p><p class="verify">AC-SAVING-01, AC-METRIC-01</p></div>
+        </article>
+        <article class="req-item" id="REQ-F-010">
+          <div class="req-id">REQ-F-010<br><span class="must">MUST</span></div>
+          <div class="req-body"><h3>CLIデモ</h3><p><code>prototype/demo.py</code> はbuilt-in合成会話でも動作し、取り込み → 相選択 → vaporize → query → condense → 測定を一回で実行する。人向け表示と <code>--json</code> を提供する。</p><p class="verify">AC-CLI-01</p></div>
+        </article>
+        <article class="req-item" id="REQ-F-011">
+          <div class="req-id">REQ-F-011<br><span class="must">MUST</span></div>
+          <div class="req-body"><h3>provider抽象化</h3><p>embedding/codecにProtocol相当の境界を置き、テストは決定論的fakeを使用する。HuggingFace Transformers等は明示選択時だけimportし、自動downloadや暗黙network callを行わない。</p><p class="verify">AC-PROVIDER-01, AC-OFFLINE-01</p></div>
+        </article>
+        <article class="req-item" id="REQ-F-012">
+          <div class="req-id">REQ-F-012<br><span class="must">MUST</span></div>
+          <div class="req-body"><h3>来歴と訂正の相横断保持</h3><p><code>provenance.py</code> はsource、confidence、evidence span、correction historyを保持する。訂正は上書きせず追記し、condense後に最新版を適用しつつ過去版も監査できる。</p><p class="verify">AC-PROVENANCE-01, AC-CORRECTION-01</p></div>
+        </article>
+        <article class="req-item" id="REQ-F-013">
+          <div class="req-id">REQ-F-013<br><span class="should">SHOULD</span></div>
+          <div class="req-body"><h3>任意の小型local model adapter</h3><p>環境に既に存在する場合だけ、local embedding/LLM adapterを選択できる。core動作、CLI、全必須テストはその存在に依存しない。</p><p class="verify">AC-PROVIDER-01</p></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="topology" class="content-section">
+      <div class="section-heading">
+        <div class="section-no">04 / TOPOLOGY</div>
+        <div>
+          <h2>「残す／蒸発させる」を説明可能にする</h2>
+          <p class="section-intro">時間グラフは発話・意味領域をnode、観測された遷移・類似・訂正参照をedgeとして持つ。各指標は0〜1へ正規化し、値と根拠nodeを出力する。</p>
+        </div>
+      </div>
+      <div class="content-offset">
+        <div class="table-wrap">
+          <table aria-label="topology指標">
+            <thead><tr><th>指標</th><th>Phase 1 操作的定義</th><th>保持への意味</th><th>必須evidence</th></tr></thead>
+            <tbody>
+              <tr><td>connectivity</td><td>対象regionの異なる隣接region数 ÷ <code>max(1, N-1)</code></td><td>多領域を結ぶhubほどactive側</td><td>隣接region IDとedge種別</td></tr>
+              <tr><td>revisit</td><td><code>min(1, revisit_count / revisit_cap)</code>。閾値以上の意味類似で戻った回数</td><td>再参照される領域ほどactive側</td><td>再訪turn ID、類似度、閾値</td></tr>
+              <tr><td>branch</td><td><code>min(1, distinct_successors / branch_cap)</code></td><td>選択肢の分岐点ほどactive側</td><td>順序付きsuccessor ID</td></tr>
+              <tr><td>attractor</td><td><code>0.6 × revisit + 0.4 × normalized_dwell</code></td><td>繰り返し滞在する構造を保持</td><td>revisit、連続滞在長</td></tr>
+              <tr><td>transition_order</td><td>すべての時間edgeへ単調増加 <code>sequence_no</code> を付与</td><td>凝縮時の会話順を再構成</td><td>edge ID、sequence_no</td></tr>
+              <tr><td>provenance_coverage</td><td>有効なsourceとevidenceを持つnode数 ÷ 全node数</td><td>監査不能な圧縮を防ぐ</td><td>source、evidence span/hash</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="formula">retention_score = .25C + .25R + .15B + .25A + .10P</div>
+        <div class="formula">score ≥ .65 → ICE · .35 ≤ score &lt; .65 → LIQUID · score &lt; .35 → VAPOR</div>
+        <p class="small-note">
+          係数と閾値は設定可能なテスト初期値であり研究結論ではない。明示的な <code>safety_hold</code>、未解決訂正、schema versionはpinされ、scoreより優先してiceまたは常時参照可能なskeletonへ残る。上書き理由は監査ログに記録する。
+        </p>
+
+        <div class="metric-grid">
+          <article class="card"><span class="tag">DETERMINISTIC</span><h3>同点規則</h3><p>同じscoreなら <code>region_id</code> の昇順。集合走査やhash順に結果を依存させない。</p></article>
+          <article class="card"><span class="tag">QUERY PATH</span><h3>凝縮候補</h3><p>query関連度上位のskeletonから1-hop近傍を候補化し、上限 <code>top_k</code> 内だけをcondenseする。</p></article>
+          <article class="card"><span class="tag">HONEST LABEL</span><h3>attractorの意味</h3><p>心理状態ではなく「グラフ上で再訪と滞在が高い領域」という操作ラベルに限定する。</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="data" class="content-section">
+      <div class="section-heading">
+        <div class="section-no">05 / DATA &amp; PROVENANCE</div>
+        <div>
+          <h2>圧縮しても、誰が何から作ったかを失わない</h2>
+          <p class="section-intro">観測発話、抽出構造、推論、評価結果を混同しない。すべての派生nodeはconfidenceとevidenceを持つ。</p>
+        </div>
+      </div>
+      <div class="content-offset">
+        <div class="table-wrap">
+          <table aria-label="主要データモデル">
+            <thead><tr><th>モデル</th><th>必須フィールド</th><th>不変条件</th></tr></thead>
+            <tbody>
+              <tr><td>MemoryRegion</td><td><code>memory_id</code>, <code>region_id</code>, phase, placement, turn_ids, content_ref, feature_ref, topology_ref, provenance_refs</td><td>相をまたいでもIDは不変。phaseは一つ。</td></tr>
+              <tr><td>ProvenanceRecord</td><td>source, confidence, evidence_spans, created_by, provider_fingerprint</td><td>sourceは user / assistant / heuristic / extractor / model_inference。model inferenceはconfidence &lt; 1.0。</td></tr>
+              <tr><td>EvidenceSpan</td><td>turn_id, start_char, end_char, quote_hash</td><td>範囲は元発話内。raw本文が非展開でもhashと位置を保持。</td></tr>
+              <tr><td>CorrectionRecord</td><td>correction_id, target_id, prior_value_hash, corrected_value, source, reason, evidence, sequence_no</td><td>追記専用。元の値を削除しない。</td></tr>
+              <tr><td>TopologySnapshot</td><td>nodes, typed_edges, ordered_transition_edges, metric_values, evidence</td><td>snapshotは入力順とconfig fingerprintへ結び付く。</td></tr>
+              <tr><td>TransitionRecord</td><td>transition_id, region_id, from_phase, to_phase, reason, rule_id, bytes_before, bytes_after, sequence_no</td><td>相変化ごとに一件。連番は単調増加。</td></tr>
+              <tr><td>RoundTripReport</td><td>phase path, sizes, saving_ratio, reconstruction metrics, selected_regions, provider/config fingerprints</td><td>失敗値も隠さず保存。threshold未達を成功扱いしない。</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <ul class="checklist">
+          <li>assistantが最初に導入した概念を、ユーザー由来へ自動昇格しない。</li>
+          <li>明示されていない心理・感情・身体状態を事実として保存しない。</li>
+          <li>推論にはconfidenceと一つ以上のevidence spanを要求する。</li>
+          <li>訂正、拒否、safety holdはvapor skeletonにも残す。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="ui" class="content-section">
+      <div class="section-heading">
+        <div class="section-no">06 / UI PROPOSAL</div>
+        <div>
+          <h2>CLIで、操作の前後を一画面にする</h2>
+          <p class="section-intro">案Aはproduction UIではなく、<code>prototype/demo.py</code> の人向け標準出力案。左に現在の相在庫、右に操作ログと測定、最下部に操作後状態を置く。</p>
+        </div>
+      </div>
+      <div class="content-offset">
+        <div id="ui-proposal-render" aria-live="polite"></div>
+
+        <template data-kamui-ui-proposal="1" data-label="案A">
+          <figure class="terminal-window" aria-label="H2O Memory CLI UI案A">
+            <div class="terminal-bar">
+              <div class="terminal-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+              <span>prototype/demo.py · offline</span>
+              <span>80×32</span>
+            </div>
+            <div class="terminal-layout">
+              <aside class="terminal-side" aria-label="相在庫とセッション状態">
+                <div class="terminal-brand">H2O MEMORY</div>
+                <h4>phase inventory</h4>
+                <div class="inventory">
+                  <div><span>VAPOR</span><b>03</b></div>
+                  <div><span>LIQUID</span><b>01</b></div>
+                  <div><span>ICE</span><b>02</b></div>
+                </div>
+                <h4>session</h4>
+                <div class="inventory">
+                  <div><span>source</span><b>synthetic</b></div>
+                  <div><span>provider</span><b>hash-v1</b></div>
+                  <div><span>seed</span><b>7</b></div>
+                  <div><span>network</span><b>off</b></div>
+                </div>
+                <h4>placement</h4>
+                <div class="inventory">
+                  <div><span>cold</span><b>1.8 KB</b></div>
+                  <div><span>standby</span><b>0.9 KB</b></div>
+                  <div><span>active</span><b>4.1 KB</b></div>
+                </div>
+              </aside>
+              <div class="terminal-main">
+                <div class="terminal-prompt"><span class="dollar">$</span> python prototype/demo.py --seed 7 --query "旅費の制約"</div>
+                <div class="run-label"><span>BEFORE · post-ingest</span><span>6 regions · 6.8 KB</span></div>
+                <div class="phase-lane">
+                  <div class="phase-bin v"><span>VAPOR</span><strong>0</strong><small>compressed_cold</small></div>
+                  <div class="phase-bin l"><span>LIQUID</span><strong>0</strong><small>standby_serialized</small></div>
+                  <div class="phase-bin i"><span>ICE</span><strong>6</strong><small>active_objects</small></div>
+                </div>
+                <ul class="event-log" aria-label="操作ログ">
+                  <li><time>00:00</time><b class="ok">INGEST</b><span>6 regions / 12 turns / provenance 100%</span></li>
+                  <li><time>00:01</time><b class="warm">SCORE</b><span>r-04 retention=.72 → ice · r-02=.41 → liquid</span></li>
+                  <li><time>00:02</time><b class="cold">VAPOR</b><span>r-01, r-03, r-06 → compressed_cold</span></li>
+                  <li><time>00:03</time><b class="warm">QUERY</b><span>"旅費の制約" → r-03 similarity=.86</span></li>
+                  <li><time>00:04</time><b class="ok">CONDENSE</b><span>r-03 · vapor → liquid → ice</span></li>
+                </ul>
+                <div class="result-strip">
+                  <div><span>MEMORY SAVED</span><b>38.2%</b></div>
+                  <div><span>TEXT RECOVERY</span><b>100.0%</b></div>
+                  <div><span>ORDER FIDELITY</span><b>100.0%</b></div>
+                </div>
+                <div class="post-state"><strong>AFTER</strong> · r-03 is ICE / active_objects · 2 unrelated regions remain VAPOR · safety pins preserved · round-trip PASS</div>
+              </div>
+            </div>
+          </figure>
+        </template>
+
+        <div class="table-wrap mt-24">
+          <table aria-label="CLI操作仕様">
+            <thead><tr><th>操作</th><th>コマンド／option</th><th>操作後に必ず見せる状態</th></tr></thead>
+            <tbody>
+              <tr><td>full demo</td><td><code>python prototype/demo.py --seed 7 --query "..."</code></td><td>before/after phase inventory、選択region、saving、reconstruction、PASS/FAIL</td></tr>
+              <tr><td>custom input</td><td><code>--input path/to/anonymized.jsonl</code></td><td>source種別、件数、validation error。raw本文をログへ全出力しない。</td></tr>
+              <tr><td>machine output</td><td><code>--json</code></td><td>同じ結果を安定key順のJSONで出力。色・装飾なし。</td></tr>
+              <tr><td>optional provider</td><td><code>--provider hash</code>（default）</td><td>provider fingerprint、offline状態。未導入adapterは明確な非zero exit。</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="architecture" class="content-section" data-kamui-architecture-proposal="true">
+      <div class="section-heading">
+        <div class="section-no">07 / ARCHITECTURE PROPOSAL</div>
+        <div>
+          <h2>Pure Pythonの小さな縦切り</h2>
+          <p class="section-intro">CLI、相エンジン、provider境界を分ける。core pathはPython 3.11標準ライブラリで動かし、NumPyやTransformersはoptional adapterの内側に隔離する。</p>
+        </div>
+      </div>
+      <div class="content-offset">
+        <div class="architecture-board" role="group" aria-label="H2O Memoryアーキテクチャ構成図">
+          <div class="architecture-flow">
+            <div class="architecture-column">
+              <div class="arch-box"><b>JSONL / built-in fixture</b><small>synthetic or anonymized turns</small></div>
+              <div class="arch-box"><b>Query</b><small>local text input</small></div>
+              <div class="arch-box"><b>Config + seed</b><small>human-readable, fingerprinted</small></div>
+            </div>
+            <div class="arch-arrow">→</div>
+            <div class="architecture-column">
+              <div class="arch-box primary"><b>demo.py</b><small>orchestrates ingest → phase change → report</small></div>
+              <div class="arch-box primary"><b>topology.py</b><small>temporal graph · metrics · phase policy</small></div>
+              <div class="arch-box primary"><b>encoder.py ⇄ decoder.py</b><small>vaporize · liquid standby · condense</small></div>
+              <div class="arch-box primary"><b>memory_state.py + provenance.py</b><small>phase models · evidence · corrections</small></div>
+            </div>
+            <div class="arch-arrow">→</div>
+            <div class="architecture-column">
+              <div class="arch-box"><b>Phase inventory</b><small>vapor / liquid / ice</small></div>
+              <div class="arch-box"><b>RoundTripReport</b><small>bytes · recovery · selected region</small></div>
+              <div class="arch-box"><b>stdout / --json</b><small>human + machine evidence</small></div>
+            </div>
+          </div>
+
+          <div class="layer-stack" role="group" aria-label="アーキテクチャ層">
+            <div class="layer"><b>Interface layer</b><span><code>prototype/demo.py</code> — 引数検証、built-in fixture、表示、exit code</span></div>
+            <div class="layer"><b>Application layer</b><span>phase policyと処理順を合成。coreモデルをCLIへ依存させない。</span></div>
+            <div class="layer"><b>Domain layer</b><span><code>phase_memory/memory_state.py</code>, <code>provenance.py</code>, <code>topology.py</code>, <code>encoder.py</code>, <code>decoder.py</code>, <code>metrics.py</code></span></div>
+            <div class="layer"><b>Provider layer</b><span><code>providers.py</code> — deterministic hash/fake provider（必須）と明示選択のlocal model adapter（任意）</span></div>
+            <div class="layer"><b>Verification layer</b><span><code>prototype/tests/</code> — synthetic fixtures、golden CLI、network guard、round-trip、mutation-sensitive assertions</span></div>
+          </div>
+        </div>
+
+        <div class="table-wrap mt-24">
+          <table aria-label="主要モジュール責務">
+            <thead><tr><th>モジュール</th><th>責務</th><th>禁止する責務</th></tr></thead>
+            <tbody>
+              <tr><td>memory_state.py</td><td>相enum、region、payload、transition不変条件</td><td>query ranking、CLI formatting</td></tr>
+              <tr><td>provenance.py</td><td>source、evidence span、confidence、追記訂正</td><td>心理状態の断定</td></tr>
+              <tr><td>topology.py</td><td>時間グラフ、6指標、retention score、関連近傍</td><td>数学的位相不変量との主張、LLM採点</td></tr>
+              <tr><td>encoder.py</td><td>canonical serialization、liquid化、vapor圧縮、skeleton生成</td><td>来歴の削除</td></tr>
+              <tr><td>decoder.py</td><td>capsule検証、訂正適用、ice再構成</td><td>無関係領域の暗黙展開</td></tr>
+              <tr><td>metrics.py</td><td>サイズ、保存率、本文／特徴／graph／order／provenance回復</td><td>未達値の丸め込み</td></tr>
+              <tr><td>providers.py</td><td>Protocol、deterministic fake/hash、optional local adapter</td><td>import時download、network fallback</td></tr>
+              <tr><td>demo.py</td><td>一連のデモ、表示、JSON、exit status</td><td>domain algorithmの重複</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout mt-22">
+          <p><strong>データ流:</strong> turns → ice regions → temporal graph / topology metrics → phase policy → liquid/vapor representations → query embedding → skeleton候補 + graph近傍 → selected region → ice reconstruction → RoundTripReport。provider結果にはfingerprintを付け、相選択score自体をLLMに生成させない。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="measurement" class="content-section">
+      <div class="section-heading">
+        <div class="section-no">08 / MEASUREMENT</div>
+        <div>
+          <h2>保存量と回復を、同じ物差しで測る</h2>
+          <p class="section-intro">Python objectの <code>sys.getsizeof</code> は実装差が大きいため受入判定に使わない。sorted keys・余白なしのcanonical JSON UTF-8 bytesと、圧縮capsule実bytesを合計する。</p>
+        </div>
+      </div>
+      <div class="content-offset">
+        <div class="formula">saving_ratio = 1 − vapor_total_bytes / original_ice_canonical_bytes</div>
+        <div class="formula">text_recovery = exactly_matched_turns / original_turns</div>
+        <div class="formula">graph_recovery = harmonic_mean(node_recall, edge_recall) · order_fidelity = preserved_order_pairs / original_order_pairs</div>
+
+        <div class="metric-grid">
+          <article class="card"><span class="tag">SIZE</span><h3>圧縮payloadも数える</h3><p>skeleton、索引、header、checksum、recovery capsuleをすべてvapor側へ算入する。</p></article>
+          <article class="card"><span class="tag">CONTENT</span><h3>本文と特徴を分離</h3><p>本文exact matchと特徴cosineを別々に報告し、片方で他方の失敗を隠さない。</p></article>
+          <article class="card"><span class="tag">STRUCTURE</span><h3>順序と来歴を一級指標に</h3><p>node/edgeだけでなくtransition order、source、evidence、correctionの回復を測る。</p></article>
+        </div>
+
+        <div class="table-wrap">
+          <table aria-label="測定項目と閾値">
+            <thead><tr><th>metric</th><th>固定fixture受入閾値</th><th>表示精度</th><th>失敗条件</th></tr></thead>
+            <tbody>
+              <tr><td>saving_ratio</td><td>≥ 0.20</td><td>小数4桁</td><td>capsule除外、負値、20%未満</td></tr>
+              <tr><td>text_recovery</td><td>= 1.0</td><td>小数4桁</td><td>1 turnでも不一致</td></tr>
+              <tr><td>feature_cosine</td><td>≥ 0.999（deterministic provider）</td><td>小数4桁</td><td>provider fingerprint不一致または閾値未達</td></tr>
+              <tr><td>node_recall / edge_recall</td><td>= 1.0 / 1.0</td><td>小数4桁</td><td>IDまたは型付きedge欠落</td></tr>
+              <tr><td>order_fidelity</td><td>= 1.0</td><td>小数4桁</td><td>順序pairの逆転・欠落</td></tr>
+              <tr><td>provenance_recall</td><td>= 1.0</td><td>小数4桁</td><td>source/evidence/correction欠落</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="small-note">20%は圧縮可能な固定合成fixtureに対する工学的gateであり、自然会話一般の保存率を主張しない。別入力で値が悪化した場合も、その値をそのまま報告する。</p>
+      </div>
+    </section>
+
+    <section id="acceptance" class="content-section">
+      <div class="section-heading">
+        <div class="section-no">09 / ACCEPTANCE</div>
+        <div>
+          <h2>pytestで観測できる受入条件</h2>
+          <p class="section-intro">core testsはネットワーク、paid API、raw personal dialogueを使わず、seed固定の合成fixtureだけで完結する。</p>
+        </div>
+      </div>
+      <div class="content-offset">
+        <div class="table-wrap">
+          <table aria-label="受入条件一覧">
+            <thead><tr><th>ID</th><th>Given / When / Then</th><th>証拠</th></tr></thead>
+            <tbody>
+              <tr id="AC-INGEST-01"><td>AC-INGEST-01</td><td>合成JSONLを取り込むと、入力turn数、speaker、順序を欠落なく持つice regionsになる。不正speakerや壊れたJSONは非zeroで具体的に失敗する。</td><td><code>test_ingest.py</code></td></tr>
+              <tr id="AC-PHASE-01"><td>AC-PHASE-01</td><td>全regionは三相の一つだけを持ち、複合vaporize/condenseが各中間遷移をログへ残す。</td><td><code>test_memory_state.py</code></td></tr>
+              <tr id="AC-PHASE-02"><td>AC-PHASE-02</td><td>同じiceから作ったliquidとvaporで展開可能フィールドまたはcanonical bytesが異なり、liquidからiceへ戻せる。</td><td><code>test_memory_state.py</code></td></tr>
+              <tr id="AC-TOPO-01"><td>AC-TOPO-01</td><td>hub/revisit領域、孤立した古い領域、分岐領域を含む固定graphで、期待score順と期待phaseが一致し、各component evidenceを返す。</td><td><code>test_topology.py</code></td></tr>
+              <tr id="AC-QUERY-01"><td>AC-QUERY-01</td><td>旅費制約を問うqueryで対応vapor regionだけがiceになり、同点規則が安定し、無関係vaporはvaporのまま残る。</td><td><code>test_condense.py</code></td></tr>
+              <tr id="AC-SAVING-01"><td>AC-SAVING-01</td><td>固定の反復を含む合成会話で、全vapor構成物を含むcanonicalサイズが元iceより20%以上小さい。</td><td><code>test_metrics.py</code></td></tr>
+              <tr id="AC-ROUNDTRIP-01"><td>AC-ROUNDTRIP-01</td><td>ice → vapor → ice後に本文、turn/region ID、node、typed edge、transition order、source/evidence、correctionsが完全一致する。</td><td><code>test_roundtrip.py</code></td></tr>
+              <tr id="AC-METRIC-01"><td>AC-METRIC-01</td><td>一要素を変異させると対応するreconstruction metricが1.0未満になり、report全体がFAILになる。</td><td><code>test_metrics.py</code></td></tr>
+              <tr id="AC-PROVENANCE-01"><td>AC-PROVENANCE-01</td><td>全派生nodeが許可source、0〜1 confidence、妥当なevidenceを持つ。model inferenceの1.0と無根拠nodeをrejectする。</td><td><code>test_provenance.py</code></td></tr>
+              <tr id="AC-CORRECTION-01"><td>AC-CORRECTION-01</td><td>訂正前の値と二つの訂正を追加してvapor round-tripすると、履歴順を保ち最新版がactiveで、元値も監査可能である。</td><td><code>test_provenance.py</code></td></tr>
+              <tr id="AC-AUDIT-01"><td>AC-AUDIT-01</td><td>各相遷移に連続するsequence_no、rule ID、reason、前後bytesがあり、ログを事後上書きできない。</td><td><code>test_transition_audit.py</code></td></tr>
+              <tr id="AC-PROVIDER-01"><td>AC-PROVIDER-01</td><td>fake/hash providerだけで全テストが通り、optional adapter未導入でもcore importが成功する。未導入adapter指定は説明付き非zeroになる。</td><td><code>test_providers.py</code></td></tr>
+              <tr id="AC-OFFLINE-01"><td>AC-OFFLINE-01</td><td>socket接続を失敗させるtest guard下でcore suiteとCLI subprocessがexit 0となり、download/cache warmupを要求しない。</td><td><code>test_offline.py</code></td></tr>
+              <tr id="AC-DETERMINISM-01"><td>AC-DETERMINISM-01</td><td>同じseed/config/inputでdemoを2回実行すると、時刻や実測durationを除外したJSON出力がbyte-identicalになる。</td><td><code>test_determinism.py</code></td></tr>
+              <tr id="AC-CLI-01"><td>AC-CLI-01</td><td>標準コマンドがexit 0で、before/after inventory、選択region、saving、6種の回復metric、provider、offline状態、PASSを表示する。</td><td><code>test_demo_cli.py</code> のgolden test</td></tr>
+              <tr id="AC-SAFETY-01"><td>AC-SAFETY-01</td><td>明示的stop/uncertaintyを持つregionはsafety holdとprovenanceを相横断で保持し、memory queryがそのflagを解除したり内省質問を生成したりしない。</td><td><code>test_safety_boundary.py</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout">
+          <p><strong>完了コマンド:</strong> <code>python -m pytest prototype/tests -q</code> と <code>python prototype/demo.py --seed 7 --query "旅費の制約"</code> が通常PCでoffline完了し、prototype READMEの記載と一致すること。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="boundaries" class="content-section">
+      <div class="section-heading">
+        <div class="section-no">10 / BOUNDARIES</div>
+        <div>
+          <h2>安全・非機能・対象外</h2>
+          <p class="section-intro">記憶圧縮デモを、臨床判断や大規模基盤へ膨らませない。安全に関する明示情報は「蒸発させて見えなくする」対象にしない。</p>
+        </div>
+      </div>
+      <div class="content-offset">
+        <div class="boundary-grid">
+          <article class="card"><span class="tag">SAFETY</span><h3>非臨床</h3><p>診断、治療、心理状態の真偽判定を行わない。distress/uncertaintyは明示発話または入力metadataに限る。</p></article>
+          <article class="card"><span class="tag">PRIVACY</span><h3>local-first</h3><p>raw personal dialogueをテスト・ログ・commitへ含めない。デモは合成fixture、外部送信なし。</p></article>
+          <article class="card"><span class="tag">AGENCY</span><h3>生成をしない</h3><p>H2O Memory CLIは内省質問や助言を生成しない。記憶取得は上位のsafety pauseを上書きしない。</p></article>
+        </div>
+
+        <div class="table-wrap">
+          <table aria-label="非機能要件">
+            <thead><tr><th>ID</th><th>非機能要件</th><th>検証</th></tr></thead>
+            <tbody>
+              <tr id="REQ-NF-001"><td>REQ-NF-001</td><td>Python 3.11+、通常PC、FPGA/GPUなしで必須pathが動く。</td><td>clean環境のpytest/CLI</td></tr>
+              <tr id="REQ-NF-002"><td>REQ-NF-002</td><td>coreはPure Python。NumPy、torch、transformersはoptionalで、必須test pathから除く。</td><td>optional packageなしのimport test</td></tr>
+              <tr id="REQ-NF-003"><td>REQ-NF-003</td><td>networkとpaid APIを必要とせず、暗黙fallbackを行わない。</td><td>socket guard</td></tr>
+              <tr id="REQ-NF-004"><td>REQ-NF-004</td><td>random処理、tie-break、serializationへseed/安定順を適用する。</td><td>byte-identical二回実行</td></tr>
+              <tr id="REQ-NF-005"><td>REQ-NF-005</td><td>型注釈、docstring、設定fingerprintを備え、Python fileは妥当な範囲で200行以下を目標とする。超過はprototype READMEで理由を明示する。</td><td>review + type-check可能性</td></tr>
+              <tr id="REQ-NF-006"><td>REQ-NF-006</td><td>CLI validation errorはraw本文を丸ごと出さず、対象turn/fieldと修正方法を示す。</td><td>invalid fixture test</td></tr>
+              <tr id="REQ-NF-007"><td>REQ-NF-007</td><td>READMEにinstall、test、demo、示すこと、示さないことを正確なコマンドで記載する。</td><td>README command smoke test</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="mt-28">Phase 1 の対象外</h3>
+        <ul class="checklist no-list">
+          <li>実消費電力、実RAM/SSD/GPU配置、OS page migration、FPGA</li>
+          <li>large modelの学習、fine-tuning、RL、必須HuggingFace download</li>
+          <li>multi-agent orchestration、GraphRAG / Transition RAG</li>
+          <li>persistent homology、Mapper、位相不変量の証明</li>
+          <li>wearable/body sensor、診断、治療、臨床意思決定</li>
+          <li>production web UI、authentication、cloud deployment</li>
+          <li>自然会話一般への圧縮率・再構成品質・研究新規性の主張</li>
+          <li>raw personal dialogueを必要とするfixtureまたはgolden file</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="traceability" class="content-section">
+      <div class="section-heading">
+        <div class="section-no">11 / TRACEABILITY</div>
+        <div>
+          <h2>要求からテスト証拠までをつなぐ</h2>
+          <p class="section-intro">後続の調査・批評で変更する場合も、要件IDを維持し、変更理由と影響する受入条件を記録する。</p>
+        </div>
+      </div>
+      <div class="content-offset">
+        <div class="table-wrap">
+          <table aria-label="要求追跡マトリクス">
+            <thead><tr><th>根拠</th><th>要求ID</th><th>受入証拠</th></tr></thead>
+            <tbody>
+              <tr><td>ユーザー原文: working software / normal PC / Phase 1</td><td>REQ-F-001〜013, REQ-NF-001〜004</td><td>AC-INGEST-01, AC-PHASE-01, AC-CLI-01, AC-OFFLINE-01</td></tr>
+              <tr><td>ユーザー原文: vapor / liquid / ice / reversible</td><td>REQ-F-002, 004, 005, 007, 009</td><td>AC-PHASE-01/02, AC-SAVING-01, AC-ROUNDTRIP-01</td></tr>
+              <tr><td>ユーザー原文: topology decides active vs evaporates</td><td>REQ-F-003, 006</td><td>AC-TOPO-01, AC-QUERY-01, AC-DETERMINISM-01</td></tr>
+              <tr><td>ユーザー原文: provenance source + correction history</td><td>REQ-F-008, 012</td><td>AC-PROVENANCE-01, AC-CORRECTION-01, AC-AUDIT-01</td></tr>
+              <tr><td>AGENTS.md: confidence / evidence / non-clinical / safety</td><td>REQ-F-012, REQ-NF-006</td><td>AC-PROVENANCE-01, AC-SAFETY-01</td></tr>
+              <tr><td>AGENTS.md + architecture: provider interfaces / offline fake</td><td>REQ-F-011, 013, REQ-NF-002/003</td><td>AC-PROVIDER-01, AC-OFFLINE-01</td></tr>
+              <tr><td>docs/03, 04: typed state / temporal graph / evidence</td><td>REQ-F-001〜009, 012</td><td>AC-TOPO-01, AC-ROUNDTRIP-01, AC-AUDIT-01</td></tr>
+              <tr><td>docs/05, 07: recurrence / user-originated novelty boundary</td><td>REQ-F-003, 012</td><td>AC-TOPO-01, AC-PROVENANCE-01</td></tr>
+              <tr><td>CODEX_TASK.md: deterministic CLI / no network / test doubles</td><td>REQ-F-010/011, REQ-NF-003/004/007</td><td>AC-CLI-01, AC-PROVIDER-01, AC-DETERMINISM-01</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="mt-28">実装完了の定義</h3>
+        <ul class="checklist">
+          <li><code>prototype/phase_memory/</code> の各責務モジュールがstubでなく実データを処理する。</li>
+          <li>固定fixtureで三相、topology選択、saving、round-trip、来歴、訂正を実証する。</li>
+          <li>CLIの人向け出力とJSONが操作後の相を明示し、golden testで固定される。</li>
+          <li>offline pytestがすべてpassし、失敗metricを成功に見せる分岐がない。</li>
+          <li>prototype READMEのコマンドを実行してexit 0を確認する。</li>
+          <li>「topology」「attractor」「novelty」を操作的ラベルとしてのみ説明する。</li>
+        </ul>
+
+        <div class="callout warning mt-22">
+          <p><strong>初稿で残す検証点:</strong> 圧縮方式、region分割粒度、retention係数は後続調査と敵対検証で更新可能。ただし「capsule込み20%以上」「完全round-trip」「topology主導」「offline決定論」のgateを弱める場合は、根拠と要件変更を明示する。</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="page-shell footer-grid">
+      <span>H2O Memory Requirements Definition · draft 0.1</span>
+      <span>Phase 1 · offline · provenance-first · non-clinical</span>
+    </div>
+  </footer>
+
+  <script>
+    (() => {
+      const source = document.querySelector('template[data-kamui-ui-proposal="1"][data-label="案A"]');
+      const target = document.querySelector('#ui-proposal-render');
+      if (source && target) target.append(source.content.cloneNode(true));
+    })();
+  </script>
+</body>
+</html>
