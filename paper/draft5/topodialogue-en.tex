@@ -1,0 +1,59 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=25mm]{geometry}
+\usepackage{graphicx,booktabs,hyperref}
+\title{TopoDialogue V: Agency, Rendering Sovereignty, and Intervention on Dialogue Trajectories}
+\author{Ryoko Sakakibara\\Independent Researcher}
+\date{16 August 2026}
+\begin{document}\maketitle
+\begin{abstract}
+Dialogue-history systems can retrieve prior text or display relations without answering a separate question: who decides how the history changes the next interaction? This fifth TopoDialogue paper specifies an auditable control layer between trajectory evidence and intervention. It separates five conditions---no history, text retrieval, event retrieval, relation-graph history, and user-controlled strategy adaptation---and records proposal, acceptance, rejection, correction, deletion, stopping, user-originated novelty, assistant-induced recurrence, and interaction burden. A deterministic fixture of fifteen constructed episodes validates capability separation and control contracts. In the adaptive condition, no proposal executes without explicit adoption; user-requested rendering is authoritative; and all inspection, correction, deletion, stopping, rendering-change, and prior-acceptance controls are present. A pre-registered richer-topology gate rejects an added representation whose declared explanatory gain is 0.01 against a 0.05 minimum. These results validate arithmetic and implementation semantics, not benefit to people. The paper therefore treats personalisation as revisable strategy selection within a particular relationship and situation, rather than inference of a fixed person.
+\end{abstract}
+
+\section{Introduction}
+TopoDialogue I--IV move from a conceptual account of recurrent low-progress regions to a reproducible trajectory instrument, observable interaction events, and modality-provenance records \cite{sakakibara2026concept,sakakibara2026instrument,sakakibara2026implicit,sakakibara2026modality}. Measurement alone does not determine what an assistant should do. A system may retrieve a relevant passage, represent relations among episodes, or select a conversational strategy. Those are distinct operations with different risks.
+
+Mixed-initiative research has long warned that automated action must account for uncertainty, cost, timing, and opportunities for people to guide or refine a result \cite{horvitz1999mixed}. Human--AI interaction guidance likewise emphasises correction, dismissal, and appropriate control \cite{amershi2019guidelines}. Interactive machine-learning work argues that users must participate throughout design and refinement, not merely supply labels after deployment \cite{amershi2014power}. Human-centred AI further rejects a simple opposition between human control and automation \cite{shneiderman2020hcai}.
+
+This paper asks a narrower, testable question: can a dialogue system keep retrieval, representation, and strategy adaptation distinguishable while making every consequential strategy proposal inspectable and reversible? Its contribution is an executable event contract and a constructed-case validation. It does not claim that the synthetic ranking predicts human outcomes.
+
+\section{Operational distinction}
+Text RAG retrieves passages. Event RAG retrieves normalised interaction events. A relation graph represents links among events, constraints, and themes. Strategy adaptation ranks candidate actions such as ordinary follow-up, reframing, changing a constraint, waiting, revisiting an episode, or returning the choice to the user. Only the final operation changes the assistant's proposed conduct. The implementation encodes each capability independently and rejects a fixture if a condition silently acquires a capability assigned to a later condition.
+
+\begin{figure}[ht]\centering
+\includegraphics[width=.95\linewidth]{condition-capabilities.png}
+\caption{Capability separation in the five constructed conditions. Retrieval and representation are not treated as strategy adaptation.}
+\end{figure}
+
+\section{Agency and rendering sovereignty}
+Agency is operationalised through observable decisions, not a hidden psychological score. A strategy episode records the proposal and its evidence references, uncertainty, whether it executed, the user's decision, and subsequent declared outcomes. For user-controlled adaptation, adoption is the only decision that permits execution. Rejection, correction, deletion, or stopping leaves the proposed strategy unexecuted.
+
+Rendering sovereignty means that a visual trajectory is a contestable interface, not an authoritative picture of intent. The user can inspect the evidence, change the rendering, correct an event, delete retained history, or stop intervention. If a requested rendering differs from the final rendering, validation fails. Deletion and stopping must also be reflected in explicit state. This preserves the difference between a system-generated view and the person's right to determine whether that view remains operative.
+
+\section{Constructed experiment}
+The fixture contains three episodes in each of five conditions. The conditions are cumulative only in declared capability, not in claimed efficacy. Each episode includes a candidate strategy, evidence references where applicable, proposal uncertainty, one observable user decision, and three bounded outcomes: user-originated novelty, assistant-induced recurrence, and interaction burden. Adoption is reported alongside rejection, repair, correction, deletion, and stopping; it is not the sole objective.
+
+\begin{figure}[ht]\centering
+\includegraphics[width=.95\linewidth]{constructed-outcomes.png}
+\caption{Declared means across fifteen constructed episodes. The ordering is a test fixture, not an estimate of causal benefit or population performance.}
+\end{figure}
+
+The audit verifies all fifteen records, all five capability signatures, and the adaptive control contract. The adaptive condition has one adoption, one correction, and one stop. It has 100\% coverage for inspection, correction, deletion, stopping, rendering change, and acceptance before execution. No contract violation occurs. Its declared mean novelty is 0.567, recurrence 0.150, and burden 0.250. These numbers are deliberately known inputs whose correct aggregation tests the instrument.
+
+\section{Richer-topology gate}
+A visually elaborate representation is not evidence of a better model. The fixture therefore declares a baseline explanatory score of 0.71, a richer-representation score of 0.72, and a minimum useful gain of 0.05. The observed gain is 0.01, so the audit retains the simpler operational metrics. Persistent homology and other advanced methods are outside this paper because no incremental explanatory or reproducibility benefit has yet been shown.
+
+\begin{figure}[ht]\centering
+\includegraphics[width=.95\linewidth]{control-and-topology-gates.png}
+\caption{Two gates: explicit adoption before execution, and demonstrated incremental value before richer topology is admitted.}
+\end{figure}
+
+\section{Interpretation and limitations}
+The implementation supports a form of personalisation that is local and revisable: adapt a proposal using outcomes observed in this relationship and situation, then let the user inspect, reject, correct, delete, or stop it. It does not infer a stable personality, culture, disability, emotion, or intention. It is therefore neither a replacement for RAG nor a graph-memory system; it is a control layer that may consume evidence from either.
+
+All episodes are constructed. There are no participants, field outcomes, cross-cultural claims, accessibility-effect claims, or causal estimates. The arithmetic cannot show that adaptation improves a conversation, that novelty is inherently desirable, or that lower recurrence is always beneficial. A future participatory study must test whether controls are understandable, whether proposals impose burden or steer users, and whether the measures remain meaningful across language and modality. If burden, steering, or assistant-induced recurrence rises, adaptation must remain suggestion-only or be disabled.
+
+\section{Conclusion}
+TopoDialogue V converts agency from a general aspiration into a falsifiable interface contract. Retrieval, relation representation, and strategy selection remain separate. Strategy execution requires explicit adoption. Rendering and retained history remain correctable, deletable, and stoppable. Richer topology must earn admission through incremental explanatory value. The present release establishes reproducible semantics and failure gates; evidence of human benefit remains future work.
+
+\bibliographystyle{plain}\bibliography{references}
+\end{document}

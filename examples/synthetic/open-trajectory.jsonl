@@ -1,0 +1,6 @@
+{"case_id":"synthetic-open","turn":1,"speaker":"user","text":"海について話す。","annotations":{"abstraction":0.2,"nodes":[{"type":"concept","key":"ocean"}]}}
+{"case_id":"synthetic-open","turn":2,"speaker":"assistant","text":"数学へ移る。","annotations":{"abstraction":0.5,"nodes":[{"type":"concept","key":"algebra"}]}}
+{"case_id":"synthetic-open","turn":3,"speaker":"user","text":"料理について話す。","annotations":{"abstraction":0.3,"nodes":[{"type":"concept","key":"cooking"}]}}
+{"case_id":"synthetic-open","turn":4,"speaker":"assistant","text":"建築へ移る。","annotations":{"abstraction":0.6,"nodes":[{"type":"concept","key":"architecture"}]}}
+{"case_id":"synthetic-open","turn":5,"speaker":"user","text":"音楽について話す。","annotations":{"abstraction":0.4,"nodes":[{"type":"concept","key":"music"}]}}
+{"case_id":"synthetic-open","turn":6,"speaker":"assistant","text":"天文学へ移る。","annotations":{"abstraction":0.7,"nodes":[{"type":"concept","key":"astronomy"}]}}

@@ -1,0 +1,52 @@
+# Private conceptual/source material: available locally to Codex, do not publish by default.
+source/
+data/private/
+*.sqlite
+*.sqlite3
+*.db
+.env
+.env.*
+
+# Agent tooling / local sandbox config (not part of the paper repo)
+.agents/
+.claude/
+.codex/
+.cursor/
+.gemini/
+.roo/
+.workspace/
+.memory-bank*
+.oclint/
+logs/
+output/
+visualizer/
+tmp/
+
+# Private chat exports & sensitive material (do not publish)
+*.json
+!paper/**/*.json
+!docs/**/*.json
+
+# Local model/cache artifacts
+.cache/
+models/
+artifacts/local/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+
+# Duplicate handoff snapshot (already tracked as individual files)
+topodialogue-codex-handoff.zip
+
+# Private raw log (judgment/sleep diary) - do NOT publish
+無題-1.txt
+無題-*.txt

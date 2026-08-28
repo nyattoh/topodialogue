@@ -1,0 +1,106 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=25mm]{geometry}
+\usepackage{graphicx,booktabs,array,url}
+\newcommand{\system}{TopoDialogue}
+\newcommand{\code}[1]{\texttt{#1}}
+\title{TopoDialogue IV: What Transcription Leaves Behind\\Modality-Preserving Events for Accessible Human--AI Dialogue}
+\author{Ryoko Sakakibara\\Independent Researcher}
+\date{16 August 2026}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+Text transcripts flatten interaction. Speech contour, selection confirmation in augmentative and alternative communication (AAC), sign-language structure, gaze or switch actions, and uncertainty introduced by conversion may disappear even when the words survive. This paper introduces a modality-provenance contract and a deterministic conversion audit for TopoDialogue. The contract records observable source events, conversion chains, preserved features, explicit reasons for missingness, alignment uncertainty, and user corrections without retaining raw signals. Five constructed cases exercise direct text, speech, switch AAC, and symbol AAC, including two cases with the identical transcript but different stipulated source events. Before correction, three of five source events are preserved, two are omitted, and one of four converted events is falsely generated. After one explicit user relabelling, four of five are preserved, one is omitted, and none is falsely generated. These numbers validate arithmetic and traceability only; they are not estimates of field accuracy, accessibility, user intent, emotion, disability, or cross-cultural validity. The result is a falsifiable boundary: a text-only trajectory cannot be treated as a complete record when its conversion provenance is unknown.
+\end{abstract}
+
+\section{Introduction}
+TopoDialogue models recurrence, progress, and escape in dialogue trajectories \cite{sakakibara2026concept,sakakibara2026instrument}. Its third paper adds observable interaction events while withholding private text \cite{sakakibara2026implicit}. A remaining problem is prior to trajectory analysis: the interface may have already converted a richer interaction into text. The same words can arrive through typing, speech recognition, sign-language mediation, symbols, gaze, or switch scanning. Treating those routes as equivalent conceals which evidence was available and which was lost.
+
+This paper asks a deliberately narrow question: can a dialogue record make conversion loss measurable without inferring a person's internal state? We contribute (1) a modality event contract, (2) event- and feature-level preservation audits, (3) non-destructive user correction, and (4) a fully reproducible constructed validation suite. The aim is not automatic emotion recognition, diagnosis, or universal interpretation. It is evidence accounting.
+
+\section{Scope and claim boundary}
+All five cases are constructed. Their event labels are stipulated test conditions, not interpretations of real people. No participants were recruited; no audio, video, gaze stream, biometric signal, or private conversation is distributed. Consequently, the reported rates are not an accuracy or causal result. Independent human annotation has not yet been completed, and participatory review with users of the represented pathways has not yet been completed.
+
+The method does not infer emotion, disability, truthfulness, personality, culture, or intention. A terminal rise may be recorded as an observable contour, but no universal psychological meaning is assigned to it. A switch selection may be recorded as an interface event, but no motor, cognitive, or diagnostic conclusion follows. Baselines are explicitly selected as individual, relationship, or situation-specific; demographic profiling is excluded.
+
+\section{Accessibility and dialogue evidence}
+Spoken dialogue-act research has long combined words, prosody, and conversational context rather than treating lexical content as exhaustive \cite{stolcke2000dialogue}. Acoustic-prosodic cues can also contribute information not captured by text-only error rates \cite{kafle2019prosodic}. For sign-language systems, gloss-based representations are lossy and require explicit reporting of limitations \cite{muller2023gloss}. These findings motivate preservation of provenance, not an automatic mapping from signal to meaning.
+
+The W3C Natural Language Interface Accessibility User Requirements describes multiple input methods, including speech, keyboard, switches, and eye tracking, and emphasises correction and changes of input method; it is a Group Draft Note rather than a normative standard \cite{w3c2022naur}. WCAG 2.2 separately requires support for identifying, reviewing, and correcting input errors in relevant contexts \cite{w3c2023wcag22}. Our correction layer applies that broad principle to research records: machine conversion remains visible and a user's explicit correction is appended rather than silently replacing the original.
+
+\section{Modality-provenance contract}
+Each source or converted event contains an event identifier, observable event type, source modality, local source reference, conversion chain, observed and preserved features, missing features with reasons, optional alignment uncertainty, user confirmation, and a raw-signal-retention flag. Missingness is restricted to \code{unobserved}, \code{not_applicable}, \code{consent_withheld}, or \code{conversion_failed}. A feature cannot be simultaneously preserved and missing.
+
+Source references are local-only identifiers. They support audit linkage without publishing raw signal. A correction may confirm, reject, or relabel a converted event. The corrected view is derived while the uncorrected record remains available. This distinguishes provenance from a mutable annotation field.
+
+\begin{table}
+\centering
+\caption{Minimum event contract and its evidential role.}\label{tab:contract}
+\begin{tabular}{p{42mm}p{104mm}}
+\toprule
+Field & Role \\
+\midrule
+source modality & Declares the interaction pathway; it is not a disability label. \\
+source event reference & Links source and converted events without exposing raw signal. \\
+conversion chain & Records ordered transformations such as speech to transcript to event normalisation. \\
+preserved and missing features & Makes feature accounting explicit; every missing source feature requires a reason. \\
+alignment uncertainty & Records temporal uncertainty when it is available, in milliseconds. \\
+user correction & Appends confirmation, rejection, or relabelling without erasing machine output. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Audit measures}
+For a case with source-event set $S$ and converted-event set $C$, an event is preserved only when its source reference and event type both match. A mismatched type counts once as an omitted source event and once as a falsely generated converted event. The audit reports event preservation $P_e$, omission $O_e$, and false generation $G_e$:
+\begin{equation}
+P_e = |S_{matched}|/|S|,\quad O_e = |S_{omitted}|/|S|,\quad G_e = |C_{false}|/|C|.
+\end{equation}
+Feature preservation $P_f$ is the number of source features explicitly preserved divided by all declared source features. Empty denominators are reported as absent values, not zero. Agreement between annotators remains a later empirical gate and should be reported with an appropriate chance-corrected coefficient and its limitations \cite{artstein2008agreement}.
+
+\section{Constructed validation}
+The fixture contains five cases: direct text, two speech conditions, switch AAC, and symbol AAC. The two speech conditions share the transcript ``それでいい''. One stipulates an adoption event with a terminal fall; the other stipulates a handover event with a terminal rise. These labels are fixtures designed to expose text-only collapse. They do not claim that pitch contour determines intention in natural conversation.
+
+The switch case tests preservation of selection confirmation while scan order is explicitly unobserved. The symbol case tests total event omission. Direct text is a control in which words and turn order are preserved. One user correction relabels the converted event in the second speech case. Every raw-signal-retention flag is false.
+
+\begin{figure}
+\centering
+\includegraphics[width=.88\linewidth]{same-transcript.png}
+\caption{Constructed identical-transcript test. Distinct stipulated source events collapse to the same text; provenance and correction preserve the distinction without inferring a universal meaning from prosody.}\label{fig:same}
+\end{figure}
+
+\section{Results}
+Before correction, the audit preserves three of five source events ($P_e=0.60$), omits two ($O_e=0.40$), and marks one of four converted events as falsely generated ($G_e=0.25$). Five of twelve declared source features are preserved ($P_f=0.417$). After one explicit relabelling, four of five source events are preserved ($P_e=0.80$), one is omitted ($O_e=0.20$), and no converted event is falsely generated ($G_e=0.00$). Seven of twelve features are preserved ($P_f=0.583$). The symbol-AAC omission remains visible after correction.
+
+\begin{figure}
+\centering
+\includegraphics[width=.78\linewidth]{conversion-rates.png}
+\caption{Aggregate constructed-case rates before and after one explicit user correction. These are deterministic fixture results, not population estimates.}\label{fig:rates}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=.92\linewidth]{pathway-preservation.png}
+\caption{Event preservation by constructed pathway. Correction repairs the stipulated speech mismatch but does not conceal the symbol-AAC omission.}\label{fig:pathways}
+\end{figure}
+
+The results establish that the implementation counts declared loss consistently, distinguishes omission from false generation, and recomputes a derived view after correction. They do not establish that the event taxonomy is complete or that automated detectors are reliable in real interaction.
+
+\section{Failure modes and display artefacts}
+First, source labels may themselves be wrong. Provenance makes the assumption visible but cannot validate it. Secondly, temporal alignment can create duplicate or mismatched references. Thirdly, a displayed trajectory may suggest psychological continuity even when a converter omitted modality-specific evidence. Fourthly, missingness may be mistaken for absence; the explicit reason field reduces but does not eliminate that risk. Fifthly, the synthetic rate improvement after correction is mechanically expected and must not be presented as model learning.
+
+Culture and language can alter the distribution and interpretation of linguistic forms. This contract is therefore not a culturally universal model. It records local observable events and an explicit calibration level. Cross-language or cross-cultural comparison requires locally justified annotation guidelines, agreement measurement, and participant review before substantive claims.
+
+\section{Privacy, agency, and accessible use}
+The implementation defaults to derived events and local references, with raw-signal retention disabled in all fixtures. This reduces exposure but does not make data anonymous. Timing, rare interaction patterns, and conversion metadata may still identify a person. Real deployment therefore requires consent, data minimisation, access controls, retention limits, and a way to withdraw source material and derivatives.
+
+User correction is an agency mechanism, not ground truth by decree. Systems should expose what was converted, what was omitted, and what changed after correction. They should not use gaze, vocal qualities, sign, or AAC behaviour to infer protected traits or hidden mental states. TopoDialogue is neither RAG nor a graph-memory replacement; it is an audit layer that can accompany other systems.
+
+\section{Next validation gates}
+The next stage requires separate evidence. At least two annotators should label a preregistered sample under pathway-specific guidelines; inter-coder agreement and adjudication changes should be reported. Users familiar with the represented pathways should then review whether the event contract, correction workflow, and displays are useful or harmful. Speech, sign, and AAC pathways require separate evaluation rather than pooled claims. Only after those gates may field preservation rates, accessibility effects, or personalisation benefits be estimated.
+
+\section{Conclusion}
+Text is an interface product, not necessarily the whole interaction. A modality-provenance contract makes that boundary testable by recording conversion paths, missingness, uncertainty, and correction. The constructed suite demonstrates deterministic accounting and a same-transcript collapse case while preserving strict claim limits. The contribution is not a classifier of people; it is a record of what the system had evidence to say.
+
+\bibliographystyle{plain}
+\bibliography{references}
+\end{document}

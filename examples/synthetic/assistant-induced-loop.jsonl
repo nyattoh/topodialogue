@@ -1,0 +1,6 @@
+{"case_id":"synthetic-assistant-loop","turn":1,"speaker":"user","text":"状況を説明する。","annotations":{"abstraction":0.4,"nodes":[{"type":"context","key":"user_context"}]}}
+{"case_id":"synthetic-assistant-loop","turn":2,"speaker":"assistant","text":"仮説Aを提示する。","annotations":{"abstraction":0.7,"nodes":[{"type":"self_claim","key":"assistant_hypothesis_a"}]}}
+{"case_id":"synthetic-assistant-loop","turn":3,"speaker":"user","text":"その仮説とは違うと答える。","annotations":{"abstraction":0.4,"nodes":[{"type":"concept","key":"user_rejection"}]}}
+{"case_id":"synthetic-assistant-loop","turn":4,"speaker":"assistant","text":"仮説Aを言い換えて提示する。","annotations":{"abstraction":0.7,"nodes":[{"type":"self_claim","key":"assistant_hypothesis_a"}]}}
+{"case_id":"synthetic-assistant-loop","turn":5,"speaker":"user","text":"別の事実を述べる。","annotations":{"abstraction":0.3,"nodes":[{"type":"context","key":"user_fact_b"}]}}
+{"case_id":"synthetic-assistant-loop","turn":6,"speaker":"assistant","text":"再び仮説Aへ戻す。","annotations":{"abstraction":0.7,"nodes":[{"type":"self_claim","key":"assistant_hypothesis_a"}]}}

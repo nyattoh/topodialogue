@@ -1,0 +1,6 @@
+{"case_id":"synthetic-spiral","turn":1,"speaker":"user","text":"庭について考える。","annotations":{"abstraction":0.10,"nodes":[{"type":"concept","key":"garden"}]}}
+{"case_id":"synthetic-spiral","turn":2,"speaker":"assistant","text":"庭の何を見るか。","annotations":{"abstraction":0.15,"nodes":[{"type":"concept","key":"garden"}]}}
+{"case_id":"synthetic-spiral","turn":3,"speaker":"user","text":"庭に土壌という具体性を加える。","annotations":{"abstraction":0.35,"nodes":[{"type":"concept","key":"garden"},{"type":"context","key":"soil"}]}}
+{"case_id":"synthetic-spiral","turn":4,"speaker":"assistant","text":"庭と土壌の関係を確認する。","annotations":{"abstraction":0.40,"nodes":[{"type":"concept","key":"garden"},{"type":"context","key":"soil"}]}}
+{"case_id":"synthetic-spiral","turn":5,"speaker":"user","text":"庭と土壌から季節変化まで進める。","annotations":{"abstraction":0.70,"nodes":[{"type":"concept","key":"garden"},{"type":"context","key":"soil"},{"type":"concept","key":"seasonal_change"}]}}
+{"case_id":"synthetic-spiral","turn":6,"speaker":"assistant","text":"三要素の構造をまとめる。","annotations":{"abstraction":0.75,"nodes":[{"type":"concept","key":"garden"},{"type":"context","key":"soil"},{"type":"concept","key":"seasonal_change"}]}}

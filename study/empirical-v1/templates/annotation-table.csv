@@ -1,0 +1,2 @@
+case_id,annotator_id,codebook_version,turn_id,revisit,repair,rejection,adoption,handover,reframing,pause,notes
+REPLACE_CASE,REPLACE_ANNOTATOR,1,t1,0,0,0,0,0,0,0,

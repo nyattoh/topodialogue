@@ -1,0 +1,6 @@
+{"case_id":"synthetic-speaker-drift","turn":1,"speaker":"user","text":"ユーザーは場所Uを話す。","annotations":{"abstraction":0.4,"nodes":[{"type":"concept","key":"user_region"}]}}
+{"case_id":"synthetic-speaker-drift","turn":2,"speaker":"assistant","text":"AIは別の場所Aを話す。","annotations":{"abstraction":0.4,"nodes":[{"type":"concept","key":"assistant_region"}]}}
+{"case_id":"synthetic-speaker-drift","turn":3,"speaker":"user","text":"ユーザーは場所Uへ戻る。","annotations":{"abstraction":0.4,"nodes":[{"type":"concept","key":"user_region"}]}}
+{"case_id":"synthetic-speaker-drift","turn":4,"speaker":"assistant","text":"AIは場所Aへ戻る。","annotations":{"abstraction":0.4,"nodes":[{"type":"concept","key":"assistant_region"}]}}
+{"case_id":"synthetic-speaker-drift","turn":5,"speaker":"user","text":"ユーザーは場所Uを維持する。","annotations":{"abstraction":0.4,"nodes":[{"type":"concept","key":"user_region"}]}}
+{"case_id":"synthetic-speaker-drift","turn":6,"speaker":"assistant","text":"AIは場所Aを維持する。","annotations":{"abstraction":0.4,"nodes":[{"type":"concept","key":"assistant_region"}]}}

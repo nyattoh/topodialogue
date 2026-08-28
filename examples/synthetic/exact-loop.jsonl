@@ -1,0 +1,6 @@
+{"case_id":"synthetic-exact-loop","turn":1,"speaker":"user","text":"同じ問いに戻る。","annotations":{"abstraction":0.5,"nodes":[{"type":"self_claim","key":"same_region"}]}}
+{"case_id":"synthetic-exact-loop","turn":2,"speaker":"assistant","text":"同じ枠内で確認する。","annotations":{"abstraction":0.5,"nodes":[{"type":"self_claim","key":"same_region"}]}}
+{"case_id":"synthetic-exact-loop","turn":3,"speaker":"user","text":"やはり同じ答えになる。","annotations":{"abstraction":0.5,"nodes":[{"type":"self_claim","key":"same_region"}]}}
+{"case_id":"synthetic-exact-loop","turn":4,"speaker":"assistant","text":"同じ仮説を繰り返す。","annotations":{"abstraction":0.5,"nodes":[{"type":"self_claim","key":"same_region"}]}}
+{"case_id":"synthetic-exact-loop","turn":5,"speaker":"user","text":"同じ場所へ戻る。","annotations":{"abstraction":0.5,"nodes":[{"type":"self_claim","key":"same_region"}]}}
+{"case_id":"synthetic-exact-loop","turn":6,"speaker":"assistant","text":"同じ枠を維持する。","annotations":{"abstraction":0.5,"nodes":[{"type":"self_claim","key":"same_region"}]}}

@@ -1,0 +1,22 @@
+# TopoDialogue memory bank
+
+## 2026-08-16 checkpoint
+
+- Active branch: `codex/topodialogue-threejs-visualizer`.
+- Empirical implementation commits: `6479633`, `c24c5db`.
+- Controlled evidence: 252 deterministic synthetic robustness/ablation runs;
+  declared annotations 100.0% joint match and text-only ablation 7.1%.
+- Study software: independent annotation aggregation, unresolved ties,
+  pairwise agreement, automatic-event scoring, balanced display assignment,
+  response validation, exclusions, and descriptive summaries.
+- Verification: Python 40 passed; Node 8 passed; six synthetic declarations
+  passed; draft 2–5 audits passed; generated study dry run is byte-stable.
+- Claim boundary: synthetic dry-run values are software-path fixtures, not
+  human observations. No natural-dialogue accuracy or display-effect claim is
+  currently supported.
+- Private raw conversation files remain outside Git. Only the content-withheld
+  public derivative and aggregate audit outputs are committed.
+- 2026-08-16T13:17:12.4040115Z [verification] Empirical validation gates passed: Python 40, Node 8, six declared synthetic cases, drafts 2-5 audits, 252-run byte-stable benchmark, and byte-stable synthetic participant-study dry run. No raw personal dialogue staged.
+- 2026-08-16T13:17:12.5064105Z [hand_over] Committed 6479633, c24c5db, and a50a2cd. Controlled computational evidence and participant-study software are complete. Human annotation agreement, natural-dialogue accuracy, accessibility benefit, personalisation benefit, and causal display effects remain unmeasured and require consented participants.
+- 2026-08-16 [planning] Added a complete Japanese recruitment pack for the synthetic-dialogue independent-annotation pilot. It includes DM and email invitations, participant information, consent, instructions, reminders, form specifications, a coordinator checklist, and contact-free tracking templates.
+- 2026-08-16 [open_issue] Before any invitation is sent, the research lead must confirm the contact address, honorarium, retention period, deletion deadline, and truthful ethics-review statement. Candidate identities and address-to-research-ID mappings must remain outside Git.

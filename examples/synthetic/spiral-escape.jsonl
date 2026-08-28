@@ -1,0 +1,6 @@
+{"case_id":"synthetic-escape","turn":1,"speaker":"user","text":"同じ制約を述べる。","annotations":{"abstraction":0.6,"nodes":[{"type":"constraint","key":"fixed_constraint"}]}}
+{"case_id":"synthetic-escape","turn":2,"speaker":"assistant","text":"同じ制約を確認する。","annotations":{"abstraction":0.6,"nodes":[{"type":"constraint","key":"fixed_constraint"}]}}
+{"case_id":"synthetic-escape","turn":3,"speaker":"user","text":"制約へ戻る。","annotations":{"abstraction":0.6,"nodes":[{"type":"constraint","key":"fixed_constraint"}]}}
+{"case_id":"synthetic-escape","turn":4,"speaker":"assistant","text":"制約を再確認する。","annotations":{"abstraction":0.6,"nodes":[{"type":"constraint","key":"fixed_constraint"}]}}
+{"case_id":"synthetic-escape","turn":5,"speaker":"user","text":"制約を外して具体的行動へ移る。","annotations":{"abstraction":0.2,"nodes":[{"type":"action_pattern","key":"new_action_region"},{"type":"desire","key":"owned_desire"}]}}
+{"case_id":"synthetic-escape","turn":6,"speaker":"assistant","text":"新しい行動を具体化する。","annotations":{"abstraction":0.2,"nodes":[{"type":"action_pattern","key":"new_action_region"}]}}
