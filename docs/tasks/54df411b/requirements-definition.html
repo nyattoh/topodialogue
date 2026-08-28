@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>H2O Memory 論文 draft6 要件定義 — run 54df411b</title>
+  <style>
+    :root {
+      --paper: #f7f4ed;
+      --surface: #fffdf8;
+      --ink: #15242a;
+      --muted: #52636a;
+      --line: #c9d3d0;
+      --deep: #123b4a;
+      --blue: #1d6f8b;
+      --vapor: #d9eef3;
+      --liquid: #b9dce9;
+      --ice: #8dc4d8;
+      --warm: #b95939;
+      --ok: #276b51;
+      --warn: #8a5a19;
+      --shadow: 0 16px 44px rgba(24, 48, 55, .10);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 8% 4%, rgba(103, 180, 206, .20), transparent 24rem),
+        linear-gradient(180deg, #eef5f4 0, var(--paper) 18rem, var(--paper) 100%);
+      color: var(--ink);
+      font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.75;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: 0 auto 72px; }
+    header { padding: 64px 0 34px; }
+    .eyebrow { color: var(--blue); font-size: .78rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    h1, h2, h3 { color: var(--deep); line-height: 1.28; letter-spacing: .01em; }
+    h1 { max-width: 900px; margin: 10px 0 16px; font-size: clamp(2rem, 5vw, 4.25rem); }
+    h2 { margin: 0 0 20px; font-size: clamp(1.5rem, 3vw, 2.25rem); }
+    h3 { margin: 24px 0 10px; font-size: 1.1rem; }
+    p { margin: .6rem 0 1rem; }
+    a { color: #155f7a; text-underline-offset: .2em; }
+    code, .formula {
+      font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
+    code { padding: .1em .32em; border-radius: 4px; background: rgba(18, 59, 74, .08); }
+    .lede { max-width: 860px; margin: 0; color: #29434c; font-size: 1.18rem; }
+    .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+    .chip { padding: 5px 10px; border: 1px solid #9eb9be; border-radius: 999px; background: rgba(255,255,255,.55); font-size: .82rem; }
+    .toc, section {
+      margin: 20px 0;
+      padding: clamp(22px, 4vw, 42px);
+      border: 1px solid rgba(92, 121, 128, .30);
+      border-radius: 18px;
+      background: rgba(255, 253, 248, .90);
+      box-shadow: var(--shadow);
+    }
+    .toc ol { columns: 2; column-gap: 36px; padding-left: 1.3rem; }
+    .toc li { break-inside: avoid; margin: 4px 0; }
+    .callout { margin: 20px 0; padding: 18px 20px; border-left: 5px solid var(--blue); background: #eef7f8; }
+    .callout strong { color: var(--deep); }
+    .warning { border-left-color: var(--warn); background: #fff7e8; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .card { padding: 20px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface); }
+    .card h3 { margin-top: 0; }
+    .vapor { border-top: 7px solid #c9e6ec; }
+    .liquid { border-top: 7px solid #72b4ca; }
+    .ice { border-top: 7px solid #2a7d9a; }
+    table { width: 100%; border-collapse: collapse; margin: 18px 0 8px; font-size: .93rem; }
+    th, td { padding: 11px 12px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: #eaf1f1; color: var(--deep); }
+    tbody tr:nth-child(even) { background: rgba(233, 241, 240, .38); }
+    ul, ol { padding-left: 1.35rem; }
+    li { margin: .28rem 0; }
+    .formula { margin: 16px 0; padding: 18px; border: 1px solid #9ab7bf; border-radius: 10px; background: #f1f8f9; color: #123b4a; font-size: clamp(.86rem, 1.8vw, 1.03rem); }
+    .must { color: #8b2e24; font-weight: 800; }
+    .should { color: #745018; font-weight: 800; }
+    .req { white-space: nowrap; font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; color: #155f7a; font-weight: 800; }
+    .diagram { margin: 24px 0 12px; overflow-x: auto; }
+    .diagram svg { display: block; min-width: 920px; width: 100%; height: auto; border: 1px solid #b9c9cc; border-radius: 14px; background: #fbfdfc; }
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; margin: 10px 0; color: var(--muted); font-size: .86rem; }
+    .legend span::before { display: inline-block; width: 10px; height: 10px; margin-right: 6px; border-radius: 50%; content: ""; background: var(--blue); }
+    .legend .control::before { background: var(--warm); }
+    .legend .metric::before { background: var(--ok); }
+    .small { color: var(--muted); font-size: .88rem; }
+    .checklist li::marker { color: var(--ok); }
+    footer { margin-top: 26px; color: var(--muted); font-size: .86rem; }
+    @media (max-width: 780px) {
+      .grid { grid-template-columns: 1fr; }
+      .toc ol { columns: 1; }
+      section, .toc { border-radius: 12px; }
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --paper: #11191c; --surface: #172226; --ink: #e6efee; --muted: #a9b9ba; --line: #405258; --deep: #c8edf5; --blue: #78c6df; --shadow: none; }
+      body { background: radial-gradient(circle at 8% 4%, #153844, transparent 24rem), var(--paper); }
+      .lede { color: #c5d7d9; }
+      .chip, section, .toc { background: rgba(23,34,38,.95); }
+      .callout { background: #142c33; }
+      .warning { background: #342814; }
+      code { background: rgba(196,232,239,.12); }
+      th { background: #23373d; }
+      tbody tr:nth-child(even) { background: rgba(63,89,95,.25); }
+      .formula { background: #14292f; color: #d3f1f5; }
+      .diagram svg { background: #fbfdfc; }
+      a { color: #89d4eb; }
+    }
+    @media print {
+      body { background: white; font-size: 10.5pt; }
+      main { width: 100%; margin: 0; }
+      header { padding-top: 0; }
+      section, .toc { break-inside: avoid; box-shadow: none; background: white; }
+      a { color: inherit; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">Requirements definition · run 54df411b · initial baseline</div>
+    <h1>H2O Memory: A Self-Reconfiguring Memory Hierarchy for Energy-Efficient AI</h1>
+    <p class="lede">TopoDialogueの意味状態・再訪・分岐・由来を、AIメモリの表現形式、精度、物理配置を同時に切り替える制御問題へ接続する、<strong>概念論文 draft6</strong> の要件定義。</p>
+    <div class="meta" aria-label="文書メタデータ">
+      <span class="chip">著者: nyattoh</span>
+      <span class="chip">作成日: 2026-08-28</span>
+      <span class="chip">成果物: paper/draft6</span>
+      <span class="chip">実験: 提案のみ・未実施</span>
+      <span class="chip">画像生成: 不要</span>
+      <span class="chip">UI案: 対象外</span>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="目次">
+    <h2>目次</h2>
+    <ol>
+      <li><a href="#authority">目的と要件の優先順位</a></li>
+      <li><a href="#thesis">中央命題と研究質問</a></li>
+      <li><a href="#phases">vapor / liquid / ice</a></li>
+      <li><a href="#operators">相転移演算子</a></li>
+      <li><a href="#skeleton">位相骨格</a></li>
+      <li><a href="#architecture">アーキテクチャ案</a></li>
+      <li><a href="#power">電力式と測定境界</a></li>
+      <li><a href="#experiment">提案実験</a></li>
+      <li><a href="#metrics">観測指標と反証条件</a></li>
+      <li><a href="#citations">引用検証</a></li>
+      <li><a href="#deliverables">英日成果物</a></li>
+      <li><a href="#connection">TopoDialogueとの接続</a></li>
+      <li><a href="#non-goals">非実施事項と安全境界</a></li>
+      <li><a href="#acceptance">受入条件</a></li>
+    </ol>
+  </nav>
+
+  <section id="authority">
+    <h2>1. 目的と要件の優先順位</h2>
+    <p>本書は、<code>paper/draft6/</code> に作るH2O Memory論文一式の初期要件を固定する。後続のリポジトリ調査・文献調査は本書を具体化・訂正できるが、研究対象と主張境界を広げてはならない。</p>
+    <div class="callout"><strong>最終権威:</strong> ユーザー原文のWHATを最上位とし、その次に本書、既存のTopoDialogue文書、draft5の成果物形式を参照する。文献調査で中央命題が既存研究と重なる場合は、「新規性仮説」を狭めるか撤回し、引用を都合よく解釈しない。</div>
+    <table>
+      <thead><tr><th>ID</th><th>規範要件</th><th>検証方法</th></tr></thead>
+      <tbody>
+        <tr><td class="req">REQ-001</td><td><span class="must">必須</span>: 実装対象は概念論文、方法、未解決問題、提案実験であり、実験結果を生成したことにしない。</td><td>英日本文、要旨、図注、metadata、READMEの時制と主張を検索・査読する。</td></tr>
+        <tr><td class="req">REQ-002</td><td><span class="must">必須</span>: 「topology」はPhase-1では研究上の比喩／構造仮説であり、グラフ周期や骨格保存を数学的な位相不変量と称さない。</td><td>禁止主張の静的監査と、限界節の明記。</td></tr>
+        <tr><td class="req">REQ-003</td><td><span class="must">必須</span>: 新規性は系統的文献レビュー完了前には「新規性仮説」とだけ記す。</td><td>EN/JA、Zenodo metadata、READMEを横断確認。</td></tr>
+        <tr><td class="req">REQ-004</td><td><span class="must">必須</span>: 著者表記は全成果物で <code>nyattoh</code> に統一する。</td><td>成果物間の文字列一致。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="thesis">
+    <h2>2. 中央命題と研究質問</h2>
+    <p><strong>中央命題:</strong> AIメモリは内容だけを更新するのではなく、同一のメモリ単位について、<strong>表現形式（representation form）・精度（precision）・物理配置（physical placement）</strong>を一つの「相」として同時に再構成すべきである。同じ記憶が固定形式・固定場所に居続ける必要はない。</p>
+    <div class="formula" aria-label="H2O phase state definition">
+      Φ(m,t) = ⟨R(m,t), Q(m,t), L(m,t), S(m,t), Π(m,t)⟩
+    </div>
+    <p>ここで <code>R</code> は表現形式、<code>Q</code> は数値精度、<code>L</code> は配置階層、<code>S</code> は保持する位相骨格、<code>Π</code> は由来と変換履歴である。相転移はこれらを別々の後処理にせず、一つの監査可能な制御判断として扱う。</p>
+    <h3>主研究質問</h3>
+    <p>意味状態の重要性と構造的なアクセス予測を使ってメモリの相を共同制御すると、固定配置、配置のみの階層化、圧縮のみの方式に比べ、回答品質と構造保存を制約内に保ちながら、HBM占有、転送量、遅延、総電力を改善できるか。</p>
+    <h3>新規性仮説</h3>
+    <p>候補となる差分は、KVキャッシュ圧縮、可逆圧縮メモリ、一般的なsoftware–hardware co-designの個別技法ではなく、<strong>意味状態の変化と半導体メモリ上の配置変化を同じ制御問題として定式化すること</strong>にある。これは現時点では新規性の主張ではなく、W1の系統的調査で反証されるべき仮説である。</p>
+  </section>
+
+  <section id="phases">
+    <h2>3. 三つの相: vapor / liquid / ice</h2>
+    <div class="grid">
+      <article class="card vapor">
+        <h3>vapor / 気相</h3>
+        <p><strong>目的:</strong> 遠い低コスト層に長期保持する。</p>
+        <ul>
+          <li>疎・圧縮・低精度・構造中心の表現。</li>
+          <li>重複内容を統合し、重要な遷移、分岐、再訪、由来を残す。</li>
+          <li>元テキストまたは詳細テンソルを常駐前提にしない。</li>
+          <li>配置例は低コスト遠隔層。具体媒体は実験プラットフォームで宣言する。</li>
+        </ul>
+      </article>
+      <article class="card liquid">
+        <h3>liquid / 液相</h3>
+        <p><strong>目的:</strong> 再利用可能性がある記憶を待機させる。</p>
+        <ul>
+          <li>部分展開された中間表現。</li>
+          <li>中程度の精度と容量。</li>
+          <li>DRAMを主要な配置候補とする。</li>
+          <li>vaporからの再構成とiceへの昇格の間を緩衝する。</li>
+        </ul>
+      </article>
+      <article class="card ice">
+        <h3>ice / 固相</h3>
+        <p><strong>目的:</strong> 計算直近で即時利用する。</p>
+        <ul>
+          <li>詳細・高精度・即時参照可能な表現。</li>
+          <li>現在のクエリ局所領域と作業集合を保持する。</li>
+          <li>HBM / SRAM / cacheを主要な配置候補とする。</li>
+          <li>最高コスト層への無制限な常駐は許さない。</li>
+        </ul>
+      </article>
+    </div>
+    <table>
+      <thead><tr><th>ID</th><th>要件</th><th>受入観点</th></tr></thead>
+      <tbody>
+        <tr><td class="req">REQ-P01</td><td>各相を少なくとも表現形式・精度・配置・保持構造・復元可能性の5軸で定義する。</td><td>EN/JAの対応表が同じ意味を持つ。</td></tr>
+        <tr><td class="req">REQ-P02</td><td>相は媒体名の別名ではない。たとえば「DRAMだからliquid」とせず、位相タプル全体で判定する。</td><td>形式モデルと例で確認。</td></tr>
+        <tr><td class="req">REQ-P03</td><td>各メモリ単位は現在相、元データ参照、由来、変換履歴、codec/policy version、サイズ、品質検査値を持つ。</td><td>architecture sketchと方法節のmanifest項目。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="operators">
+    <h2>4. 相転移演算子</h2>
+    <p>演算子は表現・精度・配置を一括して変え、その前後を監査可能にする。名称は制御の比喩であり、水の物理過程をAIメモリが再現するという主張ではない。</p>
+    <table>
+      <thead><tr><th>演算子</th><th>入力 → 出力</th><th>共同変更</th><th>最低保持条件</th></tr></thead>
+      <tbody>
+        <tr><td><code>evaporate</code></td><td>ice/liquid → vapor</td><td>text/detail → latent/summary/sketch、低精度化、dedup、遠隔低コスト層へ移動</td><td>重要遷移、主要分岐、再訪、現在のattractor-like領域への接続、順序、由来</td></tr>
+        <tr><td><code>condense</code></td><td>vapor → liquid/ice</td><td>クエリ周辺の局所領域を選択再構成し、必要精度へ拡張、計算近傍へ配置</td><td>復元根拠、欠落範囲、不確実性、参照したvapor記録を残す</td></tr>
+        <tr><td><code>freeze</code></td><td>liquid → ice</td><td>詳細化・高精度化・HBM/SRAM/cacheへの昇格</td><td>容量と予測便益を示し、過昇格を抑制</td></tr>
+        <tr><td><code>melt</code></td><td>ice → liquid</td><td>部分縮約・必要精度への減精度・DRAMへの降格</td><td>短期再利用に必要な局所構造と由来</td></tr>
+      </tbody>
+    </table>
+    <div class="formula">TransitionDecision = ⟨item/region, phase_before, phase_after, trigger_evidence, expected_cost, policy_version, timestamp⟩</div>
+    <ul>
+      <li><span class="must">必須:</span> <code>evaporate</code> と <code>condense</code> を論文の中心演算子として形式化する。</li>
+      <li><span class="should">推奨:</span> <code>freeze</code> と <code>melt</code> を三相間の実装補助演算子として定義し、中心命題をぼかさない。</li>
+      <li><span class="must">必須:</span> 非可逆圧縮を可逆と表現しない。完全復元、近似再構成、原文への外部参照を区別する。</li>
+      <li><span class="must">必須:</span> 変換失敗、品質低下、転送スラッシング、codecコスト超過を観測し、固定閾値を研究結論として扱わない。</li>
+    </ul>
+  </section>
+
+  <section id="skeleton">
+    <h2>5. 位相骨格</h2>
+    <p>「位相骨格」は、圧縮後も残すべき意味軌跡の操作的な構造要約を指す。Phase-1ではグラフ・時間順序・再訪統計で実装可能な仮説であり、persistent homologyや厳密な位相不変量を前提としない。</p>
+    <table>
+      <thead><tr><th>構成</th><th>保持内容</th><th>候補測定</th></tr></thead>
+      <tbody>
+        <tr><td>connectivity</td><td>重要ノード間の到達可能性、局所近傍、主要な関係。</td><td>重み付きedge/route preservation。</td></tr>
+        <tr><td>revisit</td><td>再訪された領域、頻度、最後の再訪、再訪元。</td><td>revisit-rank相関、再訪集合のprecision/recall。</td></tr>
+        <tr><td>branch</td><td>選択や展開を分けた主要分岐点と枝の由来。</td><td>branch-point recall、重要度順位一致。</td></tr>
+        <tr><td>attractor-like region</td><td>現在または反復的に戻る局所領域。形式的attractorの主張はしない。</td><td>クラスタ／再帰近傍の保持率。</td></tr>
+        <tr><td>transition order</td><td>重要状態の前後関係と時間窓。</td><td>順序制約の充足率。</td></tr>
+        <tr><td>provenance</td><td>user、assistant、heuristic、model inference、原データ参照、confidence、evidence span。</td><td>由来の完全性と誤帰属率。</td></tr>
+      </tbody>
+    </table>
+    <div class="formula">TPR = (Σ<sub>k</sub> w<sub>k</sub> · preserve<sub>k</sub>) / (Σ<sub>k</sub> w<sub>k</sub>), k ∈ {connectivity, revisit, branch, attractor-like, order, provenance}</div>
+    <p><code>Topology Preservation Rate (TPR)</code> は探索的な複合指標であり、構成値を必ず併記する。重みは事前宣言し、感度分析を行い、単一スコアで欠落を隠さない。</p>
+    <h3>iceに残す候補</h3>
+    <ul>
+      <li>現在のattractor-like領域と、現在クエリに接続する局所構造。</li>
+      <li>直近の重要遷移と、その根拠。</li>
+      <li>高中心性だけでなく、意味的に重要な分岐点。</li>
+      <li>過去に再訪された領域と、再構成コストが高い領域。</li>
+      <li>由来や順序を復元するために不可欠なanchor。</li>
+    </ul>
+  </section>
+
+  <section data-kamui-architecture-proposal="true" id="architecture">
+    <h2>6. アーキテクチャ案</h2>
+    <p>本図は論文の研究アーキテクチャであり、製品UI案ではない。制御器、表現変換、配置階層、観測指標、データ流を分離し、どのコストと主張を反証できるかを示す。</p>
+    <div class="diagram">
+      <svg viewBox="0 0 1120 720" role="img" aria-labelledby="architecture-title architecture-desc" xmlns="http://www.w3.org/2000/svg">
+        <title id="architecture-title">H2O Memoryの提案アーキテクチャ</title>
+        <desc id="architecture-desc">クエリとアクセス観測から位相骨格を更新し、H2O controllerが表現変換と配置を共同決定する。ice、liquid、vaporの階層をデータが往復し、電力・品質・構造保存の観測が制御器へ戻る。</desc>
+        <defs>
+          <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#1d6f8b"/></marker>
+          <marker id="arrow-red" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#b95939"/></marker>
+          <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#276b51"/></marker>
+          <filter id="soft-shadow"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#1b424c" flood-opacity=".13"/></filter>
+        </defs>
+        <rect width="1120" height="720" fill="#fbfdfc"/>
+        <text x="48" y="48" font-size="25" font-weight="700" fill="#123b4a">H2O joint control plane</text>
+        <text x="48" y="73" font-size="14" fill="#52636a">representation × precision × placement × topology skeleton × provenance</text>
+
+        <g filter="url(#soft-shadow)">
+          <rect x="45" y="112" width="240" height="125" rx="14" fill="#eef7f8" stroke="#7baab8"/>
+          <text x="65" y="142" font-size="17" font-weight="700" fill="#123b4a">1 · 観測入力</text>
+          <text x="65" y="171" font-size="14" fill="#29434c">query / token access</text>
+          <text x="65" y="194" font-size="14" fill="#29434c">reuse / revisit / branch</text>
+          <text x="65" y="217" font-size="14" fill="#29434c">capacity / bandwidth pressure</text>
+        </g>
+
+        <g filter="url(#soft-shadow)">
+          <rect x="340" y="105" width="305" height="140" rx="14" fill="#f8eee9" stroke="#b95939" stroke-width="2"/>
+          <text x="365" y="138" font-size="18" font-weight="700" fill="#71331f">2 · H2O controller</text>
+          <text x="365" y="168" font-size="14" fill="#52382f">region scoring · phase policy</text>
+          <text x="365" y="191" font-size="14" fill="#52382f">cost/quality budget · hysteresis</text>
+          <text x="365" y="214" font-size="14" fill="#52382f">evaporate / condense / freeze / melt</text>
+        </g>
+
+        <g filter="url(#soft-shadow)">
+          <rect x="700" y="112" width="370" height="125" rx="14" fill="#edf5ef" stroke="#6c9a7e"/>
+          <text x="725" y="142" font-size="17" font-weight="700" fill="#24533c">3 · 観測・監査</text>
+          <text x="725" y="171" font-size="14" fill="#29443a">power / latency / bandwidth / area</text>
+          <text x="725" y="194" font-size="14" fill="#29443a">fidelity / answer quality / TPR</text>
+          <text x="725" y="217" font-size="14" fill="#29443a">decision log / provenance / failures</text>
+        </g>
+
+        <path d="M285 175 H332" stroke="#1d6f8b" stroke-width="3" marker-end="url(#arrow-blue)"/>
+        <path d="M645 175 H692" stroke="#b95939" stroke-width="3" marker-end="url(#arrow-red)"/>
+        <path d="M880 247 V276 H500 V252" fill="none" stroke="#276b51" stroke-width="2.5" stroke-dasharray="8 6" marker-end="url(#arrow-green)"/>
+        <text x="668" y="270" font-size="12" fill="#276b51">feedback</text>
+
+        <g filter="url(#soft-shadow)">
+          <rect x="45" y="310" width="330" height="145" rx="14" fill="#f2f7f7" stroke="#819da4"/>
+          <text x="70" y="343" font-size="18" font-weight="700" fill="#123b4a">4 · 表現変換器</text>
+          <text x="70" y="373" font-size="14" fill="#29434c">encode / summarize / deduplicate</text>
+          <text x="70" y="397" font-size="14" fill="#29434c">quantize / reconstruct / validate</text>
+          <text x="70" y="421" font-size="14" fill="#29434c">manifest + uncertainty + codec version</text>
+        </g>
+
+        <g filter="url(#soft-shadow)">
+          <rect x="420" y="310" width="310" height="145" rx="14" fill="#f2f7f7" stroke="#819da4"/>
+          <text x="445" y="343" font-size="18" font-weight="700" fill="#123b4a">5 · 位相骨格</text>
+          <text x="445" y="373" font-size="14" fill="#29434c">connectivity · revisit · branch</text>
+          <text x="445" y="397" font-size="14" fill="#29434c">attractor-like · transition order</text>
+          <text x="445" y="421" font-size="14" fill="#29434c">provenance · evidence anchors</text>
+        </g>
+
+        <g filter="url(#soft-shadow)">
+          <rect x="775" y="310" width="295" height="145" rx="14" fill="#f2f7f7" stroke="#819da4"/>
+          <text x="800" y="343" font-size="18" font-weight="700" fill="#123b4a">6 · 配置管理器</text>
+          <text x="800" y="373" font-size="14" fill="#29434c">allocate / move / evict / prefetch</text>
+          <text x="800" y="397" font-size="14" fill="#29434c">capacity &amp; transfer scheduling</text>
+          <text x="800" y="421" font-size="14" fill="#29434c">atomic phase-state update</text>
+        </g>
+
+        <path d="M452 245 V282 H210 V302" fill="none" stroke="#b95939" stroke-width="3" marker-end="url(#arrow-red)"/>
+        <path d="M495 245 V302" stroke="#b95939" stroke-width="3" marker-end="url(#arrow-red)"/>
+        <path d="M540 245 V282 H922 V302" fill="none" stroke="#b95939" stroke-width="3" marker-end="url(#arrow-red)"/>
+        <path d="M375 382 H412" stroke="#1d6f8b" stroke-width="3" marker-end="url(#arrow-blue)"/>
+        <path d="M730 382 H767" stroke="#1d6f8b" stroke-width="3" marker-end="url(#arrow-blue)"/>
+
+        <text x="48" y="508" font-size="20" font-weight="700" fill="#123b4a">配置階層と相</text>
+        <g filter="url(#soft-shadow)">
+          <rect x="45" y="535" width="310" height="120" rx="14" fill="#8dc4d8" stroke="#236b84"/>
+          <text x="70" y="570" font-size="20" font-weight="700" fill="#0c3f52">ICE</text>
+          <text x="70" y="598" font-size="14" fill="#123b4a">detailed · high precision · immediate</text>
+          <text x="70" y="623" font-size="14" fill="#123b4a">HBM / SRAM / cache · near compute</text>
+        </g>
+        <g filter="url(#soft-shadow)">
+          <rect x="405" y="535" width="310" height="120" rx="14" fill="#b9dce9" stroke="#4c92aa"/>
+          <text x="430" y="570" font-size="20" font-weight="700" fill="#0c3f52">LIQUID</text>
+          <text x="430" y="598" font-size="14" fill="#123b4a">partially expanded · standby</text>
+          <text x="430" y="623" font-size="14" fill="#123b4a">DRAM · warm intermediate tier</text>
+        </g>
+        <g filter="url(#soft-shadow)">
+          <rect x="765" y="535" width="310" height="120" rx="14" fill="#d9eef3" stroke="#79aebb"/>
+          <text x="790" y="570" font-size="20" font-weight="700" fill="#0c3f52">VAPOR</text>
+          <text x="790" y="598" font-size="14" fill="#123b4a">sparse · low precision · structure-only</text>
+          <text x="790" y="623" font-size="14" fill="#123b4a">far low-cost tier</text>
+        </g>
+
+        <path d="M355 575 H397" stroke="#1d6f8b" stroke-width="3" marker-end="url(#arrow-blue)"/>
+        <path d="M715 575 H757" stroke="#1d6f8b" stroke-width="3" marker-end="url(#arrow-blue)"/>
+        <text x="365" y="563" font-size="12" fill="#155f7a">melt</text>
+        <text x="725" y="563" font-size="12" fill="#155f7a">evaporate</text>
+        <path d="M765 633 H723" stroke="#b95939" stroke-width="3" marker-end="url(#arrow-red)"/>
+        <path d="M405 633 H363" stroke="#b95939" stroke-width="3" marker-end="url(#arrow-red)"/>
+        <text x="720" y="651" font-size="12" text-anchor="end" fill="#8b3e27">condense</text>
+        <text x="397" y="651" font-size="12" text-anchor="end" fill="#8b3e27">freeze</text>
+
+        <path d="M922 455 V525" stroke="#1d6f8b" stroke-width="3" marker-end="url(#arrow-blue)"/>
+        <path d="M200 535 V484 H65 V247" fill="none" stroke="#276b51" stroke-width="2.5" stroke-dasharray="8 6" marker-end="url(#arrow-green)"/>
+        <text x="72" y="493" font-size="12" fill="#276b51">retrieved region → inference / next access</text>
+        <text x="45" y="693" font-size="12" fill="#52636a">青: memory/data flow　赤: controller decision / promotion　緑破線: observation feedback</text>
+      </svg>
+    </div>
+    <div class="legend" aria-hidden="true"><span>データ流</span><span class="control">制御判断</span><span class="metric">観測feedback</span></div>
+    <h3>データ流</h3>
+    <ol>
+      <li>推論クエリ、メモリアクセス、意味状態グラフから観測イベントを作る。</li>
+      <li>位相骨格を更新し、現在クエリへ接続する局所領域、再訪、分岐、由来を抽出する。</li>
+      <li>H2O controllerが容量・予測便益・品質予算・転送／codecコストを評価し、一つのphase transitionを決める。</li>
+      <li>表現変換器と配置管理器が同じdecision IDで変換・転送し、manifestを原子的に更新する。</li>
+      <li>取得時は必要な局所領域だけをcondense/freezeし、復元不確実性を推論側へ渡す。</li>
+      <li>電力、遅延、帯域、回答品質、TPR、失敗をcontrollerへ戻し、オフラインで方策を更新する。</li>
+    </ol>
+  </section>
+
+  <section id="power">
+    <h2>7. 電力式と測定境界</h2>
+    <div class="formula">P<sub>total</sub> = P<sub>inference-compute</sub> + P<sub>memory-retention</sub> + P<sub>inter-memory-transfer</sub> + P<sub>compression/decompression</sub></div>
+    <p>論文はこの4項を必ず分離報告する。圧縮による転送削減だけを示し、codecや再構成の電力を除外してはならない。測定区間 <code>Δt</code> に対して、転送・codecのイベントエネルギーを平均電力へ換算する。</p>
+    <div class="formula">
+      P<sub>transfer</sub> = (Σ<sub>i,j</sub> bytes<sub>i→j</sub> · e<sub>i→j</sub>) / Δt<br>
+      P<sub>codec</sub> = (E<sub>compress</sub> + E<sub>decompress</sub> + E<sub>reconstruct</sub>) / Δt
+    </div>
+    <ul>
+      <li><span class="must">必須:</span> 平均電力だけでなく、energy/query、測定時間、ウォームアップ、idle/staticの扱いを報告する。</li>
+      <li><span class="must">必須:</span> HBM、DRAM、SRAM/cache、far tierの測定境界と、推定値／シミュレーション値／実測値を明記する。</li>
+      <li><span class="must">必須:</span> 二重計上を避ける。たとえばDMAエンジンやFPGA fabricの消費をどの項へ入れたかを固定する。</li>
+      <li><span class="should">推奨:</span> 合計値に加えて時間系列と相転移1回あたりの分布を提示し、スラッシングを可視化する。</li>
+    </ul>
+  </section>
+
+  <section id="experiment">
+    <h2>8. 提案実験 — 実施済みと書かない</h2>
+    <p><strong>対象:</strong> FPGA上の単純なH2O memory controller。メモリ利用を観測し、相と配置を変え、シミュレーションおよび可能なら実機で帯域・遅延・電力を測り、方策を改善する。draft6では計画と反証条件までを示し、結果値は報告しない。</p>
+    <h3>実験パイプライン</h3>
+    <ol>
+      <li>合成／匿名化した長期対話または意味状態traceと、再現可能なメモリアクセスtraceを作る。</li>
+      <li>current region、recent transitions、key branches、revisited regions、query-local connectivity、provenanceから重要度を算出する。</li>
+      <li>controllerがphase transitionとplacementを決める。</li>
+      <li>cycle-accurate simulation、電力推定、可能な範囲のFPGA実測を区別して実行する。</li>
+      <li>帯域、遅延、電力、面積、品質、fidelity、TPRを同じtrial IDで記録する。</li>
+      <li>事前宣言した制約を満たさない結果や負の結果も含め、方策と閾値を改訂する。</li>
+    </ol>
+    <h3>比較条件</h3>
+    <table>
+      <thead><tr><th>条件</th><th>目的</th></tr></thead>
+      <tbody>
+        <tr><td>B0 固定ice</td><td>高精度・計算近傍常駐の上限品質／高コスト基準。</td></tr>
+        <tr><td>B1 配置のみ</td><td>LRU等で表現と精度を変えず階層移動し、joint controlの差分を測る。</td></tr>
+        <tr><td>B2 圧縮のみ</td><td>placementを固定して表現／精度だけを変え、転送と配置の共同効果を分離する。</td></tr>
+        <tr><td>B3 recency policy</td><td>位相骨格を使わない単純な最近性基準と比較する。</td></tr>
+        <tr><td>H2O joint</td><td>表現・精度・配置を位相骨格に基づき共同制御する。</td></tr>
+      </tbody>
+    </table>
+    <h3>必須ablation</h3>
+    <ul>
+      <li>表現変換なし、精度変更なし、配置変更なしを一つずつ除く。</li>
+      <li>位相骨格なし、provenanceなし、revisitなし、branchなしを比較する。</li>
+      <li>codec/reconstruction電力を0と仮定した理想値と、含めた現実値を分ける。</li>
+      <li>hysteresis/cooldownなしの方策と比較し、phase thrashingを測る。</li>
+    </ul>
+    <div class="callout warning"><strong>研究誠実性:</strong> FPGAボード、メモリ構成、クロック、電力計測手段が未確定の段階で具体的な省電力率、速度向上率、面積を置かない。論文中の図に仮の数値を使う場合は、説明用toy exampleであることを図内にも明記する。</div>
+  </section>
+
+  <section id="metrics">
+    <h2>9. 観測指標と反証条件</h2>
+    <table>
+      <thead><tr><th>群</th><th>必須指標</th><th>失敗が見える条件</th></tr></thead>
+      <tbody>
+        <tr><td>容量</td><td>HBM occupancy、相別byte数、metadata overhead</td><td>metadataや再構成cacheが削減分を相殺。</td></tr>
+        <tr><td>転送</td><td>HBM–DRAM transfer volume、far-tier transfer、bandwidth</td><td>condense missやthrashingで転送増。</td></tr>
+        <tr><td>局所性</td><td>SRAM/cache hit rate、prefetch precision/recall</td><td>位相骨格policyがrecencyより劣る。</td></tr>
+        <tr><td>時間</td><td>end-to-end latency、p50/p95/p99、transition stall</td><td>圧縮・再構成がcritical pathを悪化。</td></tr>
+        <tr><td>電力</td><td>4項別電力、total power、energy/query</td><td>retention削減よりcodec/transfer増が大きい。</td></tr>
+        <tr><td>hardware</td><td>FPGA LUT/FF/BRAM/DSP、frequency、controller area</td><td>control overheadが実装予算を超える。</td></tr>
+        <tr><td>再構成</td><td>memory reconstruction fidelity、欠落率、不確実性校正</td><td>重要なbranch/order/provenanceを復元不能。</td></tr>
+        <tr><td>task</td><td>answer quality、exact/semantic task metric、quality delta</td><td>省電力でも事前品質制約を破る。</td></tr>
+        <tr><td>structure</td><td>TPRと6構成値</td><td>合成値だけ良く、一要素が壊れる。</td></tr>
+      </tbody>
+    </table>
+    <h3>反証可能な仮説</h3>
+    <ul>
+      <li><strong>H1:</strong> H2O jointは、同等の回答品質制約下でB0/B1/B2より総電力またはenergy/queryを下げる。codecや再構成を含めて下がらなければ棄却する。</li>
+      <li><strong>H2:</strong> 同じ近傍メモリ容量では、位相骨格policyがrecency policyより再構成fidelityとTPRを高くする。統計的／実用的差がなければ単純方策を採る。</li>
+      <li><strong>H3:</strong> joint controlはHBM占有と転送量の両方を改善する。片方だけ改善し、遅延や品質が悪化する場合はtrade-offとして報告する。</li>
+      <li><strong>H4:</strong> hysteresis/cooldownはphase thrashingを減らす。反応遅延の悪化を含めて評価し、成功前提にしない。</li>
+    </ul>
+  </section>
+
+  <section id="citations">
+    <h2>10. 引用検証</h2>
+    <p>ユーザー原文で明示された3件は、2026-08-28にarXiv一次情報の識別子、題名、versionを確認した。ここで確認済みなのは書誌の存在であり、H2Oとの差分や新規性ではない。</p>
+    <table>
+      <thead><tr><th>識別子</th><th>一次情報で確認した題名</th><th>状態</th><th>論文での扱い</th></tr></thead>
+      <tbody>
+        <tr><td><a href="https://arxiv.org/abs/2312.03414">arXiv:2312.03414</a> v2</td><td><em>Compressed Context Memory For Online Language Model Interaction</em></td><td>URL・識別子・題名確認済み</td><td>context/KV系圧縮との比較候補。H2Oとの差を本文読解後に限定して述べる。</td></tr>
+        <tr><td><a href="https://arxiv.org/abs/2502.15957">arXiv:2502.15957</a> v1</td><td><em>R³Mem: Bridging Memory Retention and Retrieval via Reversible Compression</em></td><td>URL・識別子・題名確認済み</td><td>可逆圧縮・retention/retrievalとの比較候補。可逆性の定義を確認する。</td></tr>
+        <tr><td><a href="https://arxiv.org/abs/2603.23668">arXiv:2603.23668</a> v1</td><td><em>Energy Efficient Software Hardware CoDesign for Machine Learning: From TinyML to Large Language Models</em></td><td>URL・識別子・題名確認済み</td><td>SW–HW co-designとの比較候補。個別手法・評価範囲を本文で確認する。</td></tr>
+      </tbody>
+    </table>
+    <h3>draft6の引用gate</h3>
+    <ul class="checklist">
+      <li><code>references.bib</code> の全entryに、DOI、arXiv、出版社record等の検証可能なcanonical URLを持たせる。</li>
+      <li><code>fact-check.md</code> にアクセス日、解決後URL、題名、著者、年、venue/version、本文のどの主張を支えるかを記録する。</li>
+      <li>検索結果ページ、二次まとめ、未確認の引用文字列だけを根拠にしない。技術主張は一次論文／公式仕様で確認する。</li>
+      <li>引用keyの未使用・未定義、URL不達、題名不一致、同一識別子の重複を自動監査する。</li>
+      <li>KV cache compression、reversible/latent memory、compute-in-memory、SW–HW co-design、topology-preserving representation、energy-efficient inference、FPGA memory controllerをW1の調査範囲に含める。</li>
+      <li>先行研究が中央命題を既に扱う場合は新規性仮説を修正し、「単なる圧縮ではない」というレトリックだけで差別化しない。</li>
+    </ul>
+  </section>
+
+  <section id="deliverables">
+    <h2>11. 英日成果物</h2>
+    <table>
+      <thead><tr><th>正規パス</th><th>役割</th><th>最低要件</th></tr></thead>
+      <tbody>
+        <tr><td><code>paper/draft6/topodialogue-h2o-en.tex</code></td><td>英語論文の正本</td><td>clear English、完全な論文構成、図・式・引用、提案実験と限界。</td></tr>
+        <tr><td><code>paper/draft6/topodialogue-h2o-ja.md</code></td><td>日本語版</td><td>要約ではなく、中央命題、形式モデル、方法、評価、限界、引用を英語版と意味対応。</td></tr>
+        <tr><td><code>paper/draft6/references.bib</code></td><td>参考文献</td><td>本文とkeyが一致し、実在とURLを全件検証。</td></tr>
+        <tr><td><code>paper/draft6/fact-check.md</code></td><td>書誌・主張監査</td><td>全URL、数値、既存研究との差分、未検証点、主張境界を記録。</td></tr>
+        <tr><td><code>paper/draft6/README.md</code></td><td>再現手順</td><td>構成、検査・buildコマンド、依存、未実施事項を正確に説明。</td></tr>
+        <tr><td><code>paper/draft6/zenodo-metadata.md</code></td><td>公開metadata案</td><td>author nyattoh、title、description、keywords、related identifiers、license案。公開操作は行わない。</td></tr>
+        <tr><td><code>paper/draft6/architecture-sketch.svg</code></td><td>短い構成図</td><td>本書の制御器・変換器・位相骨格・三層・feedbackを簡潔に再現し、外部assetへ依存しない。</td></tr>
+      </tbody>
+    </table>
+    <p class="small">本要件はユーザー原文の「brief architecture sketch」を、再利用・差分確認・LaTeX参照が容易なSVGとして具体化する。後続設計で別形式を併記する場合も、同等の内容とアクセシブルなテキスト説明を残す。</p>
+    <h3>英日整合</h3>
+    <ul>
+      <li>英語版と日本語版で、式、相の定義、仮説、実験が未実施であること、否定的結果の扱いを一致させる。</li>
+      <li>一方にのみ定量的主張や強い新規性表現を置かない。</li>
+      <li>技術語は必要に応じて英語を併記し、日本語で意味を説明する。</li>
+      <li>draft5の英日対成果物、fact-check、metadata、再現READMEという包装を継承するが、draft5の著者名・日付・実験済み数値を流用しない。</li>
+    </ul>
+  </section>
+
+  <section id="connection">
+    <h2>12. 既存TopoDialogueとの接続</h2>
+    <table>
+      <thead><tr><th>TopoDialogue概念</th><th>H2O Memoryへの接続</th><th>混同しない点</th></tr></thead>
+      <tbody>
+        <tr><td>structured semantic state <code>x_t</code> / graph <code>G_t</code></td><td>memory item/regionの意味的importanceと局所構造を作る入力。</td><td>グラフそのものを物理配置と同一視しない。</td></tr>
+        <tr><td>semantic recurrence / revisit</td><td>再び必要になる領域の候補をice/liquidへ残す信号。</td><td>再訪頻度だけで価値を決めず、品質・由来・分岐も使う。</td></tr>
+        <tr><td>branch / attractor-like region / transition motif</td><td>圧縮時に残す位相骨格、condenseする局所領域のanchor。</td><td>厳密なtopological invariantや心理状態と称さない。</td></tr>
+        <tr><td>provenance</td><td>user / assistant / heuristic / model inferenceとevidence spanを相転移後も保持。</td><td>圧縮で出所を平坦化しない。推論を事実に変えない。</td></tr>
+        <tr><td>transformation operator</td><td>固定座標を変える発想を、memory phase transitionへ拡張。</td><td>対話介入演算子と内部memory演算子は別policy・別評価対象。</td></tr>
+        <tr><td>user-originated novelty / agency</td><td>回答品質評価で出所を保ち、assistantが作った新規内容をuser由来にしない。</td><td>省電力をユーザー同意や削除権より優先しない。</td></tr>
+      </tbody>
+    </table>
+    <div class="callout"><strong>接続の要点:</strong> TopoDialogueが「現在どの意味領域にいて、どこへ戻り、どの分岐と由来が重要か」を記述し、H2O controllerがその構造を使って「何をどの相でどこに置くか」を決める。既存の対話loop detectorをH2O論文の実証結果として再解釈してはならない。</div>
+  </section>
+
+  <section id="non-goals">
+    <h2>13. 非実施事項と安全境界</h2>
+    <ul>
+      <li>FPGA実験、simulation、実電力測定、性能benchmarkの実行と、結果値の生成。</li>
+      <li>production memory controller、driver、RTL、cloud deployment、製品UI。</li>
+      <li>multi-agent orchestration、GraphRAG、persistent homology、wearable/body sensorの追加。</li>
+      <li>治療、診断、臨床判断、心理状態の断定。意味状態の推論はconfidenceとevidenceを伴う仮説に限る。</li>
+      <li>raw personal dialogueを必須データにすること。例・テスト・traceは合成または匿名化する。</li>
+      <li>圧縮率だけを省電力の代理とすること、またはanswer qualityだけを構造保存の代理とすること。</li>
+      <li>論文提出、Zenodo公開、DOI発行、外部サービスへのupload。</li>
+    </ul>
+    <p>将来の実装を示す場合も、providerはinterfaceの背後に置き、offline deterministic test doubleを用意する。外部LLM、paid API、network accessをcore testの前提にしない。</p>
+  </section>
+
+  <section id="acceptance">
+    <h2>14. 受入条件</h2>
+    <ol class="checklist">
+      <li><span class="req">AC-01</span> <code>paper/draft6/</code> に指定7成果物が存在し、READMEのコマンドで静的検査を再現できる。</li>
+      <li><span class="req">AC-02</span> EN/JA双方が中央命題を「表現・精度・配置を一相として共同変更」と明記する。</li>
+      <li><span class="req">AC-03</span> vapor/liquid/iceが表現、精度、配置、保持構造、復元性で定義される。</li>
+      <li><span class="req">AC-04</span> evaporate/condenseを中心に、入力、出力、trigger、保持条件、失敗条件を形式化する。</li>
+      <li><span class="req">AC-05</span> 位相骨格にconnectivity、revisit、branch、attractor-like region、transition order、provenanceが含まれる。</li>
+      <li><span class="req">AC-06</span> SVG構成図がcontroller、representation transform、topology skeleton、placement hierarchy、observed metrics、双方向data flowを示す。</li>
+      <li><span class="req">AC-07</span> 総電力式がinference compute、memory retention、inter-memory transfer、compression/decompressionの4項を含み、測定境界と二重計上防止を説明する。</li>
+      <li><span class="req">AC-08</span> HBM occupancy、HBM–DRAM transfer volume、SRAM/cache hit rate、bandwidth、latency、total power、FPGA area、codec overhead、reconstruction fidelity、answer quality、TPRを列挙し、計測方法または未確定点を示す。</li>
+      <li><span class="req">AC-09</span> 提案FPGA実験に比較条件、ablation、seed、測定方法、負の結果、反証条件があり、「実施済み」「改善した」と書かない。</li>
+      <li><span class="req">AC-10</span> すべての引用URLがfact-checkに対応し、BibTeX keyと本文引用が一致し、未検証文献を確定的根拠に使わない。</li>
+      <li><span class="req">AC-11</span> arXiv:2312.03414、2502.15957、2603.23668を正しい題名で扱い、差分を本文読解に基づいて記述する。</li>
+      <li><span class="req">AC-12</span> 新規性は「novelty hypothesis」とし、TopoDialogueの構造仮説を数学的topologyの証明として提示しない。</li>
+      <li><span class="req">AC-13</span> provenanceを全相・全変換で保存し、model inferenceを観測事実やuser由来へ変換しない。</li>
+      <li><span class="req">AC-14</span> 英日版の主張、式、実験状態、限界が意味的に一致し、authorがnyattohで統一される。</li>
+      <li><span class="req">AC-15</span> LaTeXは利用可能な実環境でload/build検証し、SVG/XML、Markdown link、BibTeX、URL検査がexit 0になる。</li>
+      <li><span class="req">AC-16</span> repository全体の既存gateがある場合はそれを実行し、exit codeで完了判定する。gate不在または環境依存はREADMEと検証記録に明記する。</li>
+      <li><span class="req">AC-17</span> raw personal dialogue、secret、未公開個人識別子を成果物、fixture、logへ入れない。</li>
+      <li><span class="req">AC-18</span> git差分はdraft6成果物と承認済みの関連検証物に限定し、無関係な既存変更を取り込まない。</li>
+    </ol>
+    <h3>後続調査で解決する論点</h3>
+    <ul>
+      <li>「far low-cost tier」の具体媒体と、FPGA構成で測定可能な階層対応。</li>
+      <li>memory unit/regionの粒度、text/latent/KV/graphの関係、完全復元を要求する対象。</li>
+      <li>answer qualityのtask、fidelity関数、TPRの各重み、実用上の非劣性margin。</li>
+      <li>semantic importanceとhardware access likelihoodを統合するpolicy、制御周期、hysteresis。</li>
+      <li>先行研究調査後も残る差分と、論文タイトル・series位置付け。</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>このHTMLは外部CSS、JavaScript、画像、fontを必要としない単独表示可能な要件定義である。後続の調査統合・敵対検証では、変更理由と引用根拠を残して改訂する。</p>
+  </footer>
+</main>
+</body>
+</html>
