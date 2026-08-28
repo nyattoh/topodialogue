@@ -1,8 +1,8 @@
 # 要件定義HTML 敵対検証結果
 
-検証担当: codex#7  
-対象: `docs/tasks/54df411b/requirements-definition.html`  
-検証日: 2026-08-28  
+検証担当: codex#7
+対象: `docs/tasks/54df411b/requirements-definition.html`
+検証日: 2026-08-28
 判定: **条件付き不合格（1件の文書整合性指摘）**
 
 ## 実行した検査
