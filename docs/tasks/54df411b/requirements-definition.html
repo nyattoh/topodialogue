@@ -120,7 +120,7 @@
 <body>
 <main>
   <header>
-    <div class="eyebrow">Requirements definition · run 54df411b · initial baseline</div>
+    <div class="eyebrow">Requirements definition · run 54df411b · survey-integrated revision 1</div>
     <h1>H2O Memory: A Self-Reconfiguring Memory Hierarchy for Energy-Efficient AI</h1>
     <p class="lede">TopoDialogueの意味状態・再訪・分岐・由来を、AIメモリの表現形式、精度、物理配置を同時に切り替える制御問題へ接続する、<strong>概念論文 draft6</strong> の要件定義。</p>
     <div class="meta" aria-label="文書メタデータ">
@@ -142,6 +142,7 @@
       <li><a href="#operators">相転移演算子</a></li>
       <li><a href="#skeleton">位相骨格</a></li>
       <li><a href="#architecture">アーキテクチャ案</a></li>
+      <li><a href="#evidence-boundary">調査統合: 根拠と境界</a></li>
       <li><a href="#power">電力式と測定境界</a></li>
       <li><a href="#experiment">提案実験</a></li>
       <li><a href="#metrics">観測指標と反証条件</a></li>
@@ -395,8 +396,28 @@
     </ol>
   </section>
 
+  <section id="evidence-boundary">
+    <h2>7. 調査統合: 根拠と境界</h2>
+    <p>この節は、既存リポジトリ、draft5の包装形式、および一次情報で再確認した文献を要件に反映する。下表の「確認できたこと」は各資料の題名・要旨または既存成果物が直接支える範囲に限る。H2Oの性能、相制御の有効性、既存手法との差分は、<strong>いずれも未実証</strong>である。</p>
+    <table>
+      <thead><tr><th>調査対象・出所</th><th>確認できたこと</th><th>draft6への限定した反映</th><th>確認できない／主張してはならないこと</th></tr></thead>
+      <tbody>
+        <tr><td><a href="https://arxiv.org/abs/2312.03414">Kim et al., 2024, Compressed Context Memory</a>（arXiv v2）</td><td>オンライン言語モデルで増大するattention key/valueを圧縮するcontext-memory方式を提案し、限定メモリ空間での推論を対象とする。</td><td>KV/context圧縮を必ず比較対象にする。表現圧縮だけの条件をB2として分離する。</td><td>同論文が物理配置との共同制御、位相骨格、またはH2Oの新規性を否定／支持するとは読まない。</td></tr>
+        <tr><td><a href="https://arxiv.org/abs/2502.15957">Wang et al., 2025, R³Mem</a>（arXiv v1）</td><td>virtual memory tokens、階層圧縮、モデルを逆向きに呼ぶ再構成を含むreversible context compressionを提案する。</td><td>復元可能性を「完全復元」「近似再構成」「原データ参照」に分離し、非可逆変換を可逆と呼ばない。</td><td>H2Oのvapor表現が可逆である、または同じ性能を持つと推定しない。</td></tr>
+        <tr><td><a href="https://arxiv.org/abs/2603.23668">Vahdatpour &amp; Zhang, 2026, Energy Efficient Software Hardware CoDesign</a>（arXiv v1、EMC2/ASPLOS 2026 poster）</td><td>data movementとmemory-system behaviorを主要な制約として論じ、ASIC/FPGA dataflow、CIM、quantization、scheduling、runtime adaptationを横断レビューする。</td><td>電力をcompute、retention、transfer、codec/reconstructionへ分解し、cross-platform比較は構成を明記する要件にする。</td><td>レビュー／ポスターをH2O controllerの実験結果、または特定の省電力率の根拠にしない。</td></tr>
+        <tr><td><a href="https://arxiv.org/abs/2401.03868">Zeng et al., 2024, FlightLLM</a>（arXiv v2、FPGA '24）</td><td>FPGA上のLLM推論でheterogeneous memory hierarchy、on-chip decode、mixed precisionを扱う実装研究である。</td><td>FPGA評価ではメモリ階層、precision、帯域利用、基板／モデル／batch／context設定をtrial単位で固定する。</td><td>FlightLLMの報告値をH2Oの予測値や基準値として転載しない。アーキテクチャ、モデル、比較対象が違えば数値比較もしない。</td></tr>
+        <tr><td><a href="https://arxiv.org/abs/2507.03308">Li et al., 2025, Hummingbird</a>（arXiv v2、ICCAD 2025）</td><td>embedded FPGAでLLMのon-chip/off-chip配置、offloading、bandwidth utilization、resource/power報告を扱う実装研究である。</td><td>FPGA面積はLUT/FF/BRAM/DSPとfrequencyを、帯域は利用率の分子・分母を併記する。</td><td>異なるFPGAやモデルのtokens/s、電力、resource比率をH2Oの成果として一般化しない。</td></tr>
+        <tr><td><a href="../../01-conceptual-model.md">TopoDialogue conceptual model</a>、<a href="../../../paper/draft5/README.md">draft5 package README</a></td><td>TopoDialogueは意味状態、時間グラフ、再訪、分岐、由来を操作的に扱い、draft5はEN/JA・references・fact-check・静的監査・PDF builderという成果物包装を採る。</td><td>H2Oはこの構造をmemory-itemの選別信号として提案し、draft6でも英日対、fact-check、再現README、監査を維持する。</td><td>TopoDialogueのsynthetic/fixture検証を、H2Oのhardware実験、回答品質改善、数学的位相結果として再利用しない。</td></tr>
+      </tbody>
+    </table>
+    <h3>文献上の新規性境界</h3>
+    <p>以上は小規模な確認であり、系統的レビューではない。したがって本文、README、metadata、図注では、H2Oの差分を常に <strong>novelty hypothesis（新規性仮説）</strong> と表記する。最も狭い検証対象は「意味的・構造的な保持信号と、representation form・precision・physical placementを同じ監査可能なdecisionで更新する方策」である。既存研究がこの組合せを既に扱うと確認された場合は、差分を撤回またはさらに限定する。</p>
+    <h3>位相表現の限界</h3>
+    <p>「位相骨格」「attractor-like」「Topology Preservation Rate」は、この論文の操作的な構造要約である。グラフのcycle、cluster、connectivity、revisit統計、TPRの高値は、persistent homology、Betti number、数学的topological invariant、または人の認知の位相を示さない。Phase-1の既存方針と同様に、TDAを導入するならば、point cloud、filtration、時間順序、単純なrevisit特徴を超える予測／説明上の増分を事前に定義して比較し、増分がなければ採用しない。</p>
+  </section>
+
   <section id="power">
-    <h2>7. 電力式と測定境界</h2>
+    <h2>8. 電力式と測定境界</h2>
     <div class="formula">P<sub>total</sub> = P<sub>inference-compute</sub> + P<sub>memory-retention</sub> + P<sub>inter-memory-transfer</sub> + P<sub>compression/decompression</sub></div>
     <p>論文はこの4項を必ず分離報告する。圧縮による転送削減だけを示し、codecや再構成の電力を除外してはならない。測定区間 <code>Δt</code> に対して、転送・codecのイベントエネルギーを平均電力へ換算する。</p>
     <div class="formula">
@@ -409,10 +430,20 @@
       <li><span class="must">必須:</span> 二重計上を避ける。たとえばDMAエンジンやFPGA fabricの消費をどの項へ入れたかを固定する。</li>
       <li><span class="should">推奨:</span> 合計値に加えて時間系列と相転移1回あたりの分布を提示し、スラッシングを可視化する。</li>
     </ul>
+    <h3>hardware測定法の要件</h3>
+    <table>
+      <thead><tr><th>証拠水準</th><th>許容される記述</th><th>trial recordに必須の項目</th><th>禁止する混同</th></tr></thead>
+      <tbody>
+        <tr><td>trace / policy simulation</td><td>提案方策の移動量、hit/miss、再構成回数、仮定したcost model。</td><td>trace source（合成／匿名化）、seed、memory capacity、latency/energy model、policy/version。</td><td>シミュレータ出力を実測電力・実測遅延と書かない。</td></tr>
+        <tr><td>cycle/RTL-level estimation</td><td>controllerのcycle、stall、area estimate、転送scheduleの推定。</td><td>tool/version、target device、clock constraint、synthesis/place-and-route stage、未モデル化部分。</td><td>推定areaやdynamic powerをboard-level測定と書かない。</td></tr>
+        <tr><td>FPGA board measurement</td><td>指定した基板・memory configuration・workloadでのwall/rail power、latency、transfer量。</td><td>board/bitstream、clock、model/precision、batch/context、温度・warm-up、power instrument/sampling/校正、idle baseline、measurement window、error/replications。</td><td>board全体とcontroller単体、idleとactive、HBM/DRAM transferとtotal trafficを無断で混ぜない。</td></tr>
+      </tbody>
+    </table>
+    <p>各trialは <code>trial_id</code>、相遷移decision ID、codec/policy version、設定hashで結び、測定器・推定器・ログを遡れるようにする。これらは<strong>提案される測定計画</strong>であり、本作業では実行していない。</p>
   </section>
 
   <section id="experiment">
-    <h2>8. 提案実験 — 実施済みと書かない</h2>
+    <h2>9. 提案実験 — 実施済みと書かない</h2>
     <p><strong>対象:</strong> FPGA上の単純なH2O memory controller。メモリ利用を観測し、相と配置を変え、シミュレーションおよび可能なら実機で帯域・遅延・電力を測り、方策を改善する。draft6では計画と反証条件までを示し、結果値は報告しない。</p>
     <h3>実験パイプライン</h3>
     <ol>
@@ -445,7 +476,7 @@
   </section>
 
   <section id="metrics">
-    <h2>9. 観測指標と反証条件</h2>
+    <h2>10. 観測指標と反証条件</h2>
     <table>
       <thead><tr><th>群</th><th>必須指標</th><th>失敗が見える条件</th></tr></thead>
       <tbody>
@@ -470,8 +501,8 @@
   </section>
 
   <section id="citations">
-    <h2>10. 引用検証</h2>
-    <p>ユーザー原文で明示された3件は、2026-08-28にarXiv一次情報の識別子、題名、versionを確認した。ここで確認済みなのは書誌の存在であり、H2Oとの差分や新規性ではない。</p>
+    <h2>11. 引用検証</h2>
+    <p>ユーザー原文で明示された3件と、FPGA評価の測定境界に関係する2件は、2026-08-28にarXiv一次情報の識別子、題名、version、要旨範囲を確認した。ここで確認済みなのは書誌と限定した要旨上の主張であり、H2Oとの差分や新規性ではない。詳細は前節「調査統合: 根拠と境界」を正本とする。</p>
     <table>
       <thead><tr><th>識別子</th><th>一次情報で確認した題名</th><th>状態</th><th>論文での扱い</th></tr></thead>
       <tbody>
@@ -488,11 +519,12 @@
       <li>引用keyの未使用・未定義、URL不達、題名不一致、同一識別子の重複を自動監査する。</li>
       <li>KV cache compression、reversible/latent memory、compute-in-memory、SW–HW co-design、topology-preserving representation、energy-efficient inference、FPGA memory controllerをW1の調査範囲に含める。</li>
       <li>先行研究が中央命題を既に扱う場合は新規性仮説を修正し、「単なる圧縮ではない」というレトリックだけで差別化しない。</li>
+      <li>FPGA論文のtokens/s、電力、area、bandwidth利用率は、同一のboard・model・precision・workload・測定境界を再現しない限り、H2Oの比較数値にしない。</li>
     </ul>
   </section>
 
   <section id="deliverables">
-    <h2>11. 英日成果物</h2>
+    <h2>12. 英日成果物</h2>
     <table>
       <thead><tr><th>正規パス</th><th>役割</th><th>最低要件</th></tr></thead>
       <tbody>
@@ -516,7 +548,7 @@
   </section>
 
   <section id="connection">
-    <h2>12. 既存TopoDialogueとの接続</h2>
+    <h2>13. 既存TopoDialogueとの接続</h2>
     <table>
       <thead><tr><th>TopoDialogue概念</th><th>H2O Memoryへの接続</th><th>混同しない点</th></tr></thead>
       <tbody>
@@ -532,7 +564,7 @@
   </section>
 
   <section id="non-goals">
-    <h2>13. 非実施事項と安全境界</h2>
+    <h2>14. 非実施事項と安全境界</h2>
     <ul>
       <li>FPGA実験、simulation、実電力測定、性能benchmarkの実行と、結果値の生成。</li>
       <li>production memory controller、driver、RTL、cloud deployment、製品UI。</li>
@@ -546,7 +578,7 @@
   </section>
 
   <section id="acceptance">
-    <h2>14. 受入条件</h2>
+    <h2>15. 受入条件</h2>
     <ol class="checklist">
       <li><span class="req">AC-01</span> <code>paper/draft6/</code> に指定7成果物が存在し、READMEのコマンドで静的検査を再現できる。</li>
       <li><span class="req">AC-02</span> EN/JA双方が中央命題を「表現・精度・配置を一相として共同変更」と明記する。</li>
@@ -566,6 +598,9 @@
       <li><span class="req">AC-16</span> repository全体の既存gateがある場合はそれを実行し、exit codeで完了判定する。gate不在または環境依存はREADMEと検証記録に明記する。</li>
       <li><span class="req">AC-17</span> raw personal dialogue、secret、未公開個人識別子を成果物、fixture、logへ入れない。</li>
       <li><span class="req">AC-18</span> git差分はdraft6成果物と承認済みの関連検証物に限定し、無関係な既存変更を取り込まない。</li>
+      <li><span class="req">AC-19</span> 先行研究の比較は、CCM/R³Mem/co-design/FPGA実装を混同せず、各論文が直接示す範囲、H2Oで未確認の範囲、比較可能にするための構成変数を明示する。</li>
+      <li><span class="req">AC-20</span> hardware結果を将来得る場合、simulation・estimation・board measurementを区別し、trial recordに基板、clock、memory構成、workload、instrument、idle baseline、測定窓、policy/codec versionを残す。</li>
+      <li><span class="req">AC-21</span> topology skeleton/TPRを数学的位相の証拠とせず、各構成値と、より豊かなTDA表現を採用しない負のgateを併記する。</li>
     </ol>
     <h3>後続調査で解決する論点</h3>
     <ul>
